@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ABSENCE_TYPES } from '../lib/absences';
+import { DEMO } from '../lib/demo';
 import { isStandalone } from '../lib/device';
 import { buildIndex, daySummary, monthSummary, sessionStats, untrackedDays } from '../lib/calc';
 import { newProject, useNow, useStore } from '../lib/store';
@@ -20,7 +21,7 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
   const [newName, setNewName] = useState('');
   const [hideInstall, setHideInstall] = useState(() => {
     try {
-      return isStandalone() || localStorage.getItem(INSTALL_HINT_KEY) === '1';
+      return DEMO || isStandalone() || localStorage.getItem(INSTALL_HINT_KEY) === '1';
     } catch {
       return true;
     }

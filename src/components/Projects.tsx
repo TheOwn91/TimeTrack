@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { ask, notify } from '../lib/demo';
 import { shareOrDownload } from '../lib/device';
 import { STATES } from '../lib/holidays';
 import { InstallCard } from './InstallCard';
@@ -188,7 +189,7 @@ function ProjectForm({ project }: { project: Project }) {
         <button
           className="btn danger"
           onClick={() => {
-            if (!confirm(`„${project.name}“ und alle zugehörigen Zeiten endgültig löschen?`)) return;
+            if (!ask(`„${project.name}“ und alle zugehörigen Zeiten endgültig löschen?`)) return;
             update((d) => {
               d.projects = d.projects.filter((p) => p.id !== project.id);
               d.sessions = d.sessions.filter((s) => s.projectId !== project.id);
@@ -218,10 +219,10 @@ export function Projects() {
   const importBackup = async (file: File) => {
     try {
       const data = validateState(JSON.parse(await file.text()));
-      if (!confirm('Alle aktuellen Daten durch die Sicherung ersetzen?')) return;
+      if (!ask('Alle aktuellen Daten durch die Sicherung ersetzen?')) return;
       replace(data);
     } catch (e) {
-      alert(`Import fehlgeschlagen: ${(e as Error).message}`);
+      notify(`Import fehlgeschlagen: ${(e as Error).message}`);
     }
   };
 

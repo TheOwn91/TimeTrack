@@ -45,6 +45,7 @@ npm install
 npm run dev        # Entwicklungsserver
 npm test           # Unit-Tests (Berechnungen, Feiertage)
 npm run build      # Produktions-Build nach dist/
+npm run build:demo # Demo mit Beispieldaten als einzelne HTML-Datei (dist-demo/timetrack-demo.html)
 ```
 
 Der Build ist statisch (`base: './'`) und kann auf jedem Webserver bzw. GitHub Pages gehostet werden.

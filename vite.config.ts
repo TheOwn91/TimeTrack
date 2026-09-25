@@ -55,7 +55,16 @@ self.addEventListener('fetch', (event) => {
   };
 }
 
-export default defineConfig({
-  base: './',
-  plugins: [react(), serviceWorker()],
-});
+export default defineConfig(({ mode }) =>
+  mode === 'demo'
+    ? {
+        // Demo: alles in einer Datei, ohne Service Worker (für eingebettete Vorschau)
+        base: './',
+        plugins: [react()],
+        build: { outDir: 'dist-demo', assetsInlineLimit: 100_000_000, cssCodeSplit: false },
+      }
+    : {
+        base: './',
+        plugins: [react(), serviceWorker()],
+      },
+);
