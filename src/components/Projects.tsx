@@ -1,0 +1,294 @@
+import { useRef, useState } from 'react';
+import { shareOrDownload } from '../lib/device';
+import { STATES } from '../lib/holidays';
+import { InstallCard } from './InstallCard';
+import { PROJECT_COLORS, newProject, useStore, validateState } from '../lib/store';
+import { WEEKDAYS_SHORT, dateKey, uid } from '../lib/time';
+import type { Project, SurchargeKind, SurchargeRule, Weekday } from '../lib/types';
+
+const WEEK_ORDER: Weekday[] = [1, 2, 3, 4, 5, 6, 0];
+
+function WeekdayToggle({ value, onChange }: { value: Weekday[]; onChange: (v: Weekday[]) => void }) {
+  return (
+    <div className="weekday-toggle">
+      {WEEK_ORDER.map((w) => (
+        <button
+          key={w}
+          type="button"
+          className={value.includes(w) ? 'active' : ''}
+          onClick={() => onChange(value.includes(w) ? value.filter((x) => x !== w) : [...value, w])}
+        >
+          {WEEKDAYS_SHORT[w]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function SurchargeEditor({ rule, onChange, onRemove }: { rule: SurchargeRule; onChange: (r: SurchargeRule) => void; onRemove: () => void }) {
+  const set = (patch: Partial<SurchargeRule>) => onChange({ ...rule, ...patch });
+  return (
+    <div className={`surcharge-edit ${rule.enabled ? '' : 'disabled'}`}>
+      <div className="row">
+        <label className="checkbox">
+          <input type="checkbox" checked={rule.enabled} onChange={(e) => set({ enabled: e.target.checked })} />
+        </label>
+        <input className="grow" value={rule.name} onChange={(e) => set({ name: e.target.value })} />
+        <label className="suffix">
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={rule.percent}
+            onChange={(e) => set({ percent: Number(e.target.value) })}
+          />
+          %
+        </label>
+        <button className="icon-btn" onClick={onRemove} aria-label="Zulage entfernen">
+          ✕
+        </button>
+      </div>
+      <div className="row">
+        <select
+          value={rule.kind}
+          onChange={(e) => {
+            const kind = e.target.value as SurchargeKind;
+            set({
+              kind,
+              from: kind === 'time' ? rule.from ?? '22:00' : rule.from,
+              to: kind === 'time' ? rule.to ?? '06:00' : rule.to,
+              weekdays: kind === 'weekday' && !rule.weekdays?.length ? [0] : rule.weekdays,
+            });
+          }}
+        >
+          <option value="time">Uhrzeit</option>
+          <option value="weekday">Wochentag</option>
+          <option value="holiday">Feiertag</option>
+        </select>
+        {rule.kind === 'time' && (
+          <>
+            <input type="time" value={rule.from ?? ''} onChange={(e) => set({ from: e.target.value })} />
+            <span>–</span>
+            <input type="time" value={rule.to ?? ''} onChange={(e) => set({ to: e.target.value })} />
+          </>
+        )}
+      </div>
+      {rule.kind !== 'holiday' && (
+        <div className="row">
+          <WeekdayToggle value={rule.weekdays ?? []} onChange={(weekdays) => set({ weekdays })} />
+          {rule.kind === 'time' && !rule.weekdays?.length && <span className="muted small">alle Tage</span>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProjectForm({ project }: { project: Project }) {
+  const { update } = useStore();
+  const set = (fn: (p: Project) => void) =>
+    update((d) => {
+      const p = d.projects.find((x) => x.id === project.id);
+      if (p) fn(p);
+    });
+
+  return (
+    <div className="project-form">
+      <label>
+        Name
+        <input value={project.name} onChange={(e) => set((p) => (p.name = e.target.value))} />
+      </label>
+      <div className="color-row">
+        {PROJECT_COLORS.map((c) => (
+          <button
+            key={c}
+            className={`color ${project.color === c ? 'active' : ''}`}
+            style={{ background: c }}
+            onClick={() => set((p) => (p.color = c))}
+            aria-label={`Farbe ${c}`}
+          />
+        ))}
+      </div>
+      <div className="grid-2">
+        <label>
+          Stundenlohn (€)
+          <input
+            type="number"
+            min={0}
+            step={0.01}
+            value={project.hourlyRate}
+            onChange={(e) => set((p) => (p.hourlyRate = Number(e.target.value)))}
+          />
+        </label>
+        <label>
+          Soll pro Tag (h)
+          <input
+            type="number"
+            min={0}
+            max={24}
+            step={0.25}
+            value={project.dailyTargetHours}
+            onChange={(e) => set((p) => (p.dailyTargetHours = Number(e.target.value)))}
+          />
+        </label>
+      </div>
+      <label>Arbeitstage</label>
+      <WeekdayToggle value={project.workdays} onChange={(v) => set((p) => (p.workdays = v))} />
+      <div className="grid-2">
+        <label>
+          Feiertage (Bundesland)
+          <select value={project.state} onChange={(e) => set((p) => (p.state = e.target.value))}>
+            {Object.entries(STATES).map(([k, v]) => (
+              <option key={k} value={k}>
+                {v}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Erfassung ab
+          <input
+            type="date"
+            value={project.startDate}
+            onChange={(e) => e.target.value && set((p) => (p.startDate = e.target.value))}
+          />
+        </label>
+      </div>
+      <label className="checkbox">
+        <input type="checkbox" checked={project.autoBreak} onChange={(e) => set((p) => (p.autoBreak = e.target.checked))} />
+        Gesetzliche Mindestpause automatisch abziehen (&gt; 6 h: 30 min, &gt; 9 h: 45 min)
+      </label>
+
+      <h3>Zulagen</h3>
+      <p className="muted small">
+        Zulagen werden minutengenau berechnet. Bei Uhrzeiten über Mitternacht (z. B. 22:00–06:00) einfach Ende vor Beginn eintragen.
+      </p>
+      {project.surcharges.map((r) => (
+        <SurchargeEditor
+          key={r.id}
+          rule={r}
+          onChange={(nr) => set((p) => (p.surcharges = p.surcharges.map((x) => (x.id === r.id ? nr : x))))}
+          onRemove={() => set((p) => (p.surcharges = p.surcharges.filter((x) => x.id !== r.id)))}
+        />
+      ))}
+      <button
+        className="btn secondary full"
+        onClick={() =>
+          set((p) =>
+            p.surcharges.push({ id: uid(), name: 'Neue Zulage', kind: 'time', from: '20:00', to: '23:00', percent: 10, enabled: true }),
+          )
+        }
+      >
+        + Zulage hinzufügen
+      </button>
+
+      <div className="row danger-zone">
+        <button className="btn secondary" onClick={() => set((p) => (p.archived = !p.archived))}>
+          {project.archived ? 'Wiederherstellen' : 'Archivieren'}
+        </button>
+        <button
+          className="btn danger"
+          onClick={() => {
+            if (!confirm(`„${project.name}“ und alle zugehörigen Zeiten endgültig löschen?`)) return;
+            update((d) => {
+              d.projects = d.projects.filter((p) => p.id !== project.id);
+              d.sessions = d.sessions.filter((s) => s.projectId !== project.id);
+              d.absences = d.absences.filter((a) => a.projectId !== project.id);
+              if (d.selectedProjectId === project.id) d.selectedProjectId = d.projects[0]?.id;
+            });
+          }}
+        >
+          Löschen
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function Projects() {
+  const { state, update, replace } = useStore();
+  const [openId, setOpenId] = useState<string | null>(state.selectedProjectId ?? null);
+  const [name, setName] = useState('');
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const exportBackup = () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    void shareOrDownload(blob, `timetrack-backup-${dateKey(new Date())}.json`);
+  };
+
+  const importBackup = async (file: File) => {
+    try {
+      const data = validateState(JSON.parse(await file.text()));
+      if (!confirm('Alle aktuellen Daten durch die Sicherung ersetzen?')) return;
+      replace(data);
+    } catch (e) {
+      alert(`Import fehlgeschlagen: ${(e as Error).message}`);
+    }
+  };
+
+  return (
+    <div className="page">
+      <section className="card">
+        <h2>Arbeitgeber / Projekte</h2>
+        <form
+          className="row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!name.trim()) return;
+            const p = newProject(name.trim(), state.projects.length);
+            update((d) => {
+              d.projects.push(p);
+              d.selectedProjectId = p.id;
+            });
+            setOpenId(p.id);
+            setName('');
+          }}
+        >
+          <input className="grow" placeholder="Neuer Arbeitgeber / Projekt" value={name} onChange={(e) => setName(e.target.value)} />
+          <button className="btn primary" type="submit">
+            Anlegen
+          </button>
+        </form>
+      </section>
+
+      {state.projects.map((p) => (
+        <section key={p.id} className={`card project-card ${p.archived ? 'archived' : ''}`}>
+          <button className="project-head" onClick={() => setOpenId(openId === p.id ? null : p.id)}>
+            <span className="dot" style={{ background: p.color }} />
+            <strong className="grow">{p.name || 'Ohne Namen'}</strong>
+            {p.archived && <span className="muted small">archiviert</span>}
+            <span className="muted">{openId === p.id ? '▴' : '▾'}</span>
+          </button>
+          {openId === p.id && <ProjectForm project={p} />}
+        </section>
+      ))}
+
+      <InstallCard />
+
+      <section className="card">
+        <h2>Datensicherung</h2>
+        <p className="muted small">
+          Alle Daten werden nur lokal auf diesem Gerät gespeichert – nichts wird hochgeladen. Erstelle regelmäßig eine Sicherung (z. B. in Dateien/Drive oder per Mail), damit bei Handywechsel oder Löschen der App nichts verloren geht.
+        </p>
+        <div className="row">
+          <button className="btn secondary grow" onClick={exportBackup}>
+            Sicherung exportieren
+          </button>
+          <button className="btn secondary grow" onClick={() => fileRef.current?.click()}>
+            Sicherung importieren
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json,.json"
+            hidden
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void importBackup(f);
+              e.target.value = '';
+            }}
+          />
+        </div>
+      </section>
+    </div>
+  );
+}
