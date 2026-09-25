@@ -1,0 +1,121 @@
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { dateKey, uid } from './time';
+import type { AppState, Project, SurchargeRule } from './types';
+
+const STORAGE_KEY = 'timetrack.v1';
+
+export const PROJECT_COLORS = ['#2563eb', '#16a34a', '#dc2626', '#9333ea', '#ea580c', '#0891b2', '#ca8a04', '#db2777'];
+
+export function defaultSurcharges(): SurchargeRule[] {
+  return [
+    { id: uid(), name: 'Spätschicht', kind: 'time', from: '18:00', to: '22:00', percent: 10, enabled: true },
+    { id: uid(), name: 'Nachtschicht', kind: 'time', from: '22:00', to: '06:00', percent: 25, enabled: true },
+    { id: uid(), name: 'Samstag', kind: 'weekday', weekdays: [6], percent: 0, enabled: false },
+    { id: uid(), name: 'Sonntag', kind: 'weekday', weekdays: [0], percent: 50, enabled: true },
+    { id: uid(), name: 'Feiertag', kind: 'holiday', percent: 125, enabled: true },
+  ];
+}
+
+export function newProject(name: string, index = 0): Project {
+  return {
+    id: uid(),
+    name,
+    color: PROJECT_COLORS[index % PROJECT_COLORS.length],
+    hourlyRate: 0,
+    dailyTargetHours: 8,
+    workdays: [1, 2, 3, 4, 5],
+    autoBreak: true,
+    state: 'NW',
+    surcharges: defaultSurcharges(),
+    startDate: dateKey(new Date()),
+  };
+}
+
+export function emptyState(): AppState {
+  return { version: 1, projects: [], sessions: [], absences: [] };
+}
+
+export function loadState(): AppState {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return emptyState();
+    return validateState(JSON.parse(raw));
+  } catch {
+    return emptyState();
+  }
+}
+
+export function validateState(data: unknown): AppState {
+  const d = data as Partial<AppState>;
+  if (!d || typeof d !== 'object' || !Array.isArray(d.projects) || !Array.isArray(d.sessions)) {
+    throw new Error('Ungültige Datei');
+  }
+  return {
+    version: 1,
+    projects: d.projects,
+    sessions: d.sessions,
+    absences: Array.isArray(d.absences) ? d.absences : [],
+    selectedProjectId: d.selectedProjectId,
+  };
+}
+
+type Updater = (draft: AppState) => void;
+
+interface StoreValue {
+  state: AppState;
+  update: (fn: Updater) => void;
+  replace: (s: AppState) => void;
+}
+
+const StoreContext = createContext<StoreValue | null>(null);
+
+export function StoreProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AppState>(loadState);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      /* Speicher voll oder deaktiviert */
+    }
+  }, [state]);
+
+  // Änderungen aus anderen Tabs übernehmen
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) setState(loadState());
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const update = useCallback((fn: Updater) => {
+    setState((prev) => {
+      const draft = structuredClone(prev);
+      fn(draft);
+      return draft;
+    });
+  }, []);
+
+  return (
+    <StoreContext.Provider value={{ state, update, replace: setState }}>{children}</StoreContext.Provider>
+  );
+}
+
+export function useStore(): StoreValue {
+  const ctx = useContext(StoreContext);
+  if (!ctx) throw new Error('StoreProvider fehlt');
+  return ctx;
+}
+
+/** Sekündlich aktualisierter Zeitstempel (nur wenn aktiv). */
+export function useNow(active = true, intervalMs = 1000): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!active) return;
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), intervalMs);
+    return () => clearInterval(t);
+  }, [active, intervalMs]);
+  return now;
+}
