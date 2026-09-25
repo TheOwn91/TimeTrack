@@ -1,16 +1,32 @@
 :root {
   --bg: #f3f4f7;
   --card: #ffffff;
+  --raised: #ffffff;
   --text: #111827;
-  --muted: #6b7280;
-  --border: #e5e7eb;
+  --muted: #5b6472;
+  --border: #dde1e7;
+  --off: #eef1f5;
   --primary: #2563eb;
+  --on-primary: #ffffff;
+  --link: #1d4ed8;
   --primary-soft: #dbeafe;
-  --success: #16a34a;
-  --warning: #f59e0b;
+  --success: #15803d;
+  --warning: #b45309;
+  --warning-bg: #f59e0b;
+  --on-warning: #1f1300;
   --danger: #dc2626;
-  --danger-soft: #fef2f2;
-  --off: #f8fafc;
+  --danger-bg: #dc2626;
+  --danger-soft: #fdecec;
+  --holiday: #0e7490;
+  --chip-on: #ffffff;
+  --backdrop: rgb(15 23 42 / 0.45);
+  --c-urlaub: #15803d;
+  --c-krank: #dc2626;
+  --c-ueberstunden: #7e22ce;
+  --c-kurzarbeit: #c2410c;
+  --c-feiertag: #0e7490;
+  --c-frei: #475569;
+  --c-sonstiges: #a16207;
   --radius: 14px;
   color-scheme: light;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -20,28 +36,66 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #0f1115;
-    --card: #1a1d24;
-    --text: #e5e7eb;
-    --muted: #9ca3af;
-    --border: #2d323c;
+    --bg: #0b0e13;
+    --card: #161a21;
+    --raised: #1f242d;
+    --text: #eef1f5;
+    --muted: #a3acb9;
+    --border: #363d4a;
+    --off: #0f1218;
     --primary: #3b82f6;
-    --primary-soft: #1e293b;
-    --danger-soft: #2a1515;
-    --off: #15181e;
+    --on-primary: #ffffff;
+    --link: #7ab4ff;
+    --primary-soft: #1b2b47;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --warning-bg: #f59e0b;
+    --on-warning: #1f1300;
+    --danger: #f87171;
+    --danger-bg: #dc2626;
+    --danger-soft: #3a1619;
+    --holiday: #22d3ee;
+    --chip-on: #0b0e13;
+    --backdrop: rgb(0 0 0 / 0.7);
+    --c-urlaub: #4ade80;
+    --c-krank: #f87171;
+    --c-ueberstunden: #c084fc;
+    --c-kurzarbeit: #fb923c;
+    --c-feiertag: #22d3ee;
+    --c-frei: #a3acb9;
+    --c-sonstiges: #facc15;
     color-scheme: dark;
   }
 }
 :root[data-theme='dark'] {
-  --bg: #0f1115;
-  --card: #1a1d24;
-  --text: #e5e7eb;
-  --muted: #9ca3af;
-  --border: #2d323c;
+  --bg: #0b0e13;
+  --card: #161a21;
+  --raised: #1f242d;
+  --text: #eef1f5;
+  --muted: #a3acb9;
+  --border: #363d4a;
+  --off: #0f1218;
   --primary: #3b82f6;
-  --primary-soft: #1e293b;
-  --danger-soft: #2a1515;
-  --off: #15181e;
+  --on-primary: #ffffff;
+  --link: #7ab4ff;
+  --primary-soft: #1b2b47;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --warning-bg: #f59e0b;
+  --on-warning: #1f1300;
+  --danger: #f87171;
+  --danger-bg: #dc2626;
+  --danger-soft: #3a1619;
+  --holiday: #22d3ee;
+  --chip-on: #0b0e13;
+  --backdrop: rgb(0 0 0 / 0.7);
+  --c-urlaub: #4ade80;
+  --c-krank: #f87171;
+  --c-ueberstunden: #c084fc;
+  --c-kurzarbeit: #fb923c;
+  --c-feiertag: #22d3ee;
+  --c-frei: #a3acb9;
+  --c-sonstiges: #facc15;
   color-scheme: dark;
 }
 
@@ -103,7 +157,7 @@ h3 {
 }
 .app-header h1 {
   font-size: 1.35rem;
-  color: var(--primary);
+  color: var(--link);
 }
 
 .page {
@@ -159,18 +213,18 @@ h3 {
 }
 .btn.primary {
   background: var(--primary);
-  color: #fff;
+  color: var(--on-primary);
 }
 .btn.secondary {
   background: var(--primary-soft);
-  color: var(--primary);
+  color: var(--link);
 }
 .btn.warning {
-  background: var(--warning);
-  color: #1f1300;
+  background: var(--warning-bg);
+  color: var(--on-warning);
 }
 .btn.danger {
-  background: var(--danger);
+  background: var(--danger-bg);
   color: #fff;
 }
 .btn.big {
@@ -195,7 +249,7 @@ h3 {
 .link {
   border: none;
   background: none;
-  color: var(--primary);
+  color: var(--link);
   padding: 0.25rem 0;
   font-size: 0.9rem;
 }
@@ -337,7 +391,7 @@ h3 {
 
 .badge {
   display: inline-block;
-  background: var(--danger);
+  background: var(--danger-bg);
   color: #fff;
   border-radius: 999px;
   font-size: 0.75rem;
@@ -377,7 +431,7 @@ h3 {
   gap: 0.4rem;
 }
 .chip {
-  --chip: var(--primary);
+  --chip: var(--link);
   border: 1.5px solid var(--chip);
   color: var(--chip);
   background: transparent;
@@ -392,7 +446,7 @@ h3 {
 }
 .chip.active {
   background: var(--chip);
-  color: #fff;
+  color: var(--chip-on);
 }
 .chip.static {
   cursor: default;
@@ -437,6 +491,7 @@ h3 {
 }
 .day-row.off {
   background: var(--off);
+  color: var(--muted);
 }
 .day-row.today {
   box-shadow: inset 3px 0 0 var(--primary);
@@ -469,7 +524,7 @@ h3 {
   font-weight: 600;
 }
 .tag.holiday {
-  color: #0891b2;
+  color: var(--holiday);
 }
 .tag.missing {
   color: var(--danger);
@@ -479,14 +534,16 @@ h3 {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgb(0 0 0 / 0.45);
+  background: var(--backdrop);
   display: flex;
   align-items: flex-end;
   justify-content: center;
   z-index: 50;
 }
 .modal {
-  background: var(--card);
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-bottom: none;
   width: 100%;
   max-width: 640px;
   max-height: 92vh;
@@ -643,7 +700,7 @@ h3 {
 .weekday-toggle button.active {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: var(--on-primary);
 }
 .surcharge-edit {
   border: 1px solid var(--border);
@@ -705,7 +762,7 @@ h3 {
   color: var(--muted);
 }
 .tabbar button.active {
-  color: var(--primary);
+  color: var(--link);
   font-weight: 600;
 }
 .tab-icon {
@@ -744,7 +801,7 @@ html {
   border: none;
   background: none;
   text-align: left;
-  color: var(--primary);
+  color: var(--link);
   font-size: 0.88rem;
   font-weight: 600;
   padding: 0.4rem 0;
