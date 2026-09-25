@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { ABSENCE_TYPES } from '../lib/absences';
+import { isStandalone } from '../lib/device';
 import { buildIndex, daySummary, monthSummary, sessionStats, untrackedDays } from '../lib/calc';
 import { newProject, useNow, useStore } from '../lib/store';
 import { MONTHS, dateKey, fmtClock, fmtDate, fmtDuration, fmtMoney, fmtTime, uid } from '../lib/time';
 import type { AbsenceType, DateKey } from '../lib/types';
 import { DayEditor } from './DayEditor';
 import { ProjectPicker } from './ProjectPicker';
+
+const INSTALL_HINT_KEY = 'timetrack.installHintDismissed';
 
 const QUICK_ABSENCES: AbsenceType[] = ['urlaub', 'krank', 'ueberstunden', 'kurzarbeit', 'frei'];
 
@@ -15,6 +18,21 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
   const now = useNow(true, active ? 1000 : 30_000);
   const [editDate, setEditDate] = useState<DateKey | null>(null);
   const [newName, setNewName] = useState('');
+  const [hideInstall, setHideInstall] = useState(() => {
+    try {
+      return isStandalone() || localStorage.getItem(INSTALL_HINT_KEY) === '1';
+    } catch {
+      return true;
+    }
+  });
+  const dismissInstall = () => {
+    setHideInstall(true);
+    try {
+      localStorage.setItem(INSTALL_HINT_KEY, '1');
+    } catch {
+      /* ignorieren */
+    }
+  };
 
   const projects = state.projects.filter((p) => !p.archived);
   const project =
@@ -87,6 +105,16 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
 
   return (
     <div className="page">
+      {!hideInstall && (
+        <div className="install-hint">
+          <button className="grow" onClick={onOpenProjects}>
+            📲 TimeTrack als App auf dem Homescreen installieren – funktioniert dann offline
+          </button>
+          <button className="icon-btn" onClick={dismissInstall} aria-label="Hinweis ausblenden">
+            ✕
+          </button>
+        </div>
+      )}
       <section className="card">
         <div className="row">
           <ProjectPicker

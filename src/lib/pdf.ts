@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ABSENCE_TYPES } from './absences';
+import { shareOrDownload } from './device';
 import { monthSummary } from './calc';
 import { STATES } from './holidays';
 import { MONTHS, WEEKDAYS_SHORT, dateKey, fmtDuration, fmtHoursDecimal, fmtMoney, fmtTime, parseDateKey, pad } from './time';
@@ -168,5 +169,5 @@ export function buildMonthReport(state: AppState, project: Project, year: number
 
 export function exportMonthPdf(state: AppState, project: Project, year: number, month0: number) {
   const { doc, fileName } = buildMonthReport(state, project, year, month0);
-  doc.save(fileName);
+  return shareOrDownload(doc.output('blob'), fileName);
 }

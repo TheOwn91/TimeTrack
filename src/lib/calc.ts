@@ -162,7 +162,9 @@ export function daySummary(project: Project, date: DateKey, index: Index, now: n
     if (mode === 'noTarget') target = 0;
   }
   // Vor Erfassungsbeginn und in der Zukunft noch kein Soll ansetzen
-  if (date > today || (date < project.startDate && !absence)) {
+  // Heute zählt erst, sobald etwas erfasst ist – sonst stünde morgens schon ein Minus da
+  const pendingToday = date === today && sessions.length === 0 && !absence;
+  if (date > today || pendingToday || (date < project.startDate && !absence)) {
     target = 0;
     credit = 0;
   }

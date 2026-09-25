@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
+import { shareOrDownload } from '../lib/device';
 import { STATES } from '../lib/holidays';
+import { InstallCard } from './InstallCard';
 import { PROJECT_COLORS, newProject, useStore, validateState } from '../lib/store';
 import { WEEKDAYS_SHORT, dateKey, uid } from '../lib/time';
 import type { Project, SurchargeKind, SurchargeRule, Weekday } from '../lib/types';
@@ -210,11 +212,7 @@ export function Projects() {
 
   const exportBackup = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `timetrack-backup-${dateKey(new Date())}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+    void shareOrDownload(blob, `timetrack-backup-${dateKey(new Date())}.json`);
   };
 
   const importBackup = async (file: File) => {
@@ -264,10 +262,12 @@ export function Projects() {
         </section>
       ))}
 
+      <InstallCard />
+
       <section className="card">
         <h2>Datensicherung</h2>
         <p className="muted small">
-          Alle Daten werden nur lokal in diesem Browser gespeichert. Erstelle regelmäßig eine Sicherung.
+          Alle Daten werden nur lokal auf diesem Gerät gespeichert – nichts wird hochgeladen. Erstelle regelmäßig eine Sicherung (z. B. in Dateien/Drive oder per Mail), damit bei Handywechsel oder Löschen der App nichts verloren geht.
         </p>
         <div className="row">
           <button className="btn secondary grow" onClick={exportBackup}>

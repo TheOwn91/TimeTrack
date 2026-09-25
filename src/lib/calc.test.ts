@@ -138,4 +138,18 @@ describe('Monat und fehlende Tage', () => {
     expect(sum.balance).toBe(555 + 480 - 1440);
     expect(sum.absenceCounts).toEqual({ urlaub: 1, kurzarbeit: 1, ueberstunden: 1 });
   });
+
+  it('setzt für heute erst ein Soll an, wenn etwas erfasst ist', () => {
+    const empty = monthSummary(state(), project, 2026, 8, combine('2026-09-01', '07:00'));
+    expect(empty.target).toBe(0);
+    const started = monthSummary(
+      state({ sessions: [{ id: 'a', projectId: 'p', start: combine('2026-09-01', '07:00'), pauses: [] }] }),
+      project,
+      2026,
+      8,
+      combine('2026-09-01', '08:00'),
+    );
+    expect(started.target).toBe(480);
+    expect(started.worked).toBe(60);
+  });
 });

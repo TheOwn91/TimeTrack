@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ABSENCE_TYPES } from '../lib/absences';
 import { monthSummary } from '../lib/calc';
 import { useNow, useStore } from '../lib/store';
@@ -16,6 +16,11 @@ export function MonthView() {
     return { y: d.getFullYear(), m: d.getMonth() };
   });
   const [editDate, setEditDate] = useState<DateKey | null>(null);
+  // PDF-Modul vorladen, damit der Export direkt im Klick passiert (nötig fürs Teilen-Menü auf iOS)
+  const pdf = useRef<typeof import('../lib/pdf') | null>(null);
+  useEffect(() => {
+    void import('../lib/pdf').then((m) => (pdf.current = m));
+  }, []);
 
   const projects = state.projects.filter((p) => !p.archived);
   const project = projects.find((p) => p.id === state.selectedProjectId) ?? projects[0];
@@ -87,7 +92,10 @@ export function MonthView() {
               ))}
           </ul>
         )}
-        <button className="btn primary full" onClick={() => void import('../lib/pdf').then((m) => m.exportMonthPdf(state, project, ym.y, ym.m))}>
+        <button className="btn primary full" onClick={async () => {
+            const m = pdf.current ?? (pdf.current = await import('../lib/pdf'));
+            await m.exportMonthPdf(state, project, ym.y, ym.m);
+          }}>
           ⬇ PDF-Monatsbericht exportieren
         </button>
       </section>
