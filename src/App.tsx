@@ -33,6 +33,13 @@ export function App() {
   const [wizard, setWizard] = useState<{ firstRun: boolean; name?: string } | null>(() =>
     state.projects.length === 0 ? { firstRun: true } : null,
   );
+  // Nach „Alle Daten löschen“ wie beim ersten Start einrichten
+  useEffect(() => {
+    if (state.projects.length === 0 && !wizard) {
+      setTab('home');
+      setWizard({ firstRun: true });
+    }
+  }, [state.projects.length]);
   const [update, setUpdate] = useState(getUpdateStatus);
   useEffect(() => onUpdateStatus(setUpdate), []);
 

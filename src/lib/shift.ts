@@ -1,29 +1,39 @@
-import { addDays, dateKey } from './time';
+import { addDays, dateKey, parseHM } from './time';
 import type { DateKey, Project, Session, Weekday } from './types';
 
 /**
- * Versteckte Option für Arbeitgeber, deren Name mit „Hahn Automation“ beginnt:
- * Eine Schicht wird dem Folgetag zugeordnet (Anstempeln Sonntag → steht beim Montag).
- * Zulagen werden weiter nach den echten Uhrzeiten berechnet.
+ * Option „Nachtschicht dem Folgetag zuordnen“: Eine Schicht, die ab 18 Uhr beginnt, steht beim
+ * Folgetag (Anstempeln Sonntag 21:30 → steht beim Montag). Früher beginnende Schichten bleiben an
+ * ihrem Tag. Zulagen werden weiter nach den echten Uhrzeiten berechnet.
  */
-export function hasHahnOptions(p: Pick<Project, 'name'>): boolean {
-  return /^\s*hahn automation/i.test(p.name);
-}
+export const NIGHT_SHIFT_FROM = '18:00';
+
+type ShiftProject = Pick<Project, 'shiftToNextDay'>;
 
 /** Ist die Zuordnung zum Folgetag für diesen Arbeitgeber aktiv? */
-export function shiftsToNextDay(p: Pick<Project, 'name' | 'shiftToNextDay'>): boolean {
-  return !!p.shiftToNextDay && hasHahnOptions(p);
+export function shiftsToNextDay(p: ShiftProject): boolean {
+  return !!p.shiftToNextDay;
+}
+
+/** Beginnt eine Schicht zu dieser Uhrzeit („HH:MM“) als Nachtschicht? */
+export function isNightStart(hm: string): boolean {
+  return parseHM(hm) >= parseHM(NIGHT_SHIFT_FROM);
 }
 
 /** Tag, bei dem eine Buchung angezeigt und gezählt wird. */
-export function sessionDay(p: Pick<Project, 'name' | 'shiftToNextDay'>, s: Pick<Session, 'start'>): DateKey {
+export function sessionDay(p: ShiftProject, s: Pick<Session, 'start'>): DateKey {
   const day = dateKey(s.start);
-  return shiftsToNextDay(p) ? addDays(day, 1) : day;
+  const d = new Date(s.start);
+  const nightStart = d.getHours() * 60 + d.getMinutes() >= parseHM(NIGHT_SHIFT_FROM);
+  return shiftsToNextDay(p) && nightStart ? addDays(day, 1) : day;
 }
 
-/** Kalendertag, auf den sich die Beginnzeit einer Buchung am angezeigten Tag bezieht. */
-export function workDate(p: Pick<Project, 'name' | 'shiftToNextDay'>, shownDate: DateKey): DateKey {
-  return shiftsToNextDay(p) ? addDays(shownDate, -1) : shownDate;
+/**
+ * Kalendertag, auf den sich eine Beginnzeit am angezeigten Tag bezieht: bei aktiver Option und
+ * Beginn ab 18 Uhr der Vortag, sonst der Tag selbst.
+ */
+export function workDate(p: ShiftProject, shownDate: DateKey, startHm: string): DateKey {
+  return shiftsToNextDay(p) && isNightStart(startHm) ? addDays(shownDate, -1) : shownDate;
 }
 
 /** Arbeitstage um `delta` Tage verschieben (z. B. So–Do → Mo–Fr). */

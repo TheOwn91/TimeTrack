@@ -43,7 +43,7 @@ export interface Project {
   surchargeMode?: SurchargeMode;
   /** Ab diesem Tag werden fehlende Einträge angezeigt. */
   startDate: DateKey;
-  /** Versteckte Option (nur „Hahn Automation…“): Schicht dem Folgetag zuordnen, siehe shift.ts. */
+  /** Nachtschichten (Beginn ab 18 Uhr) dem Folgetag zuordnen, siehe shift.ts. */
   shiftToNextDay?: boolean;
   /** Urlaubsanspruch pro Kalenderjahr in Tagen (Standard 30). */
   vacationDaysPerYear?: number;
@@ -105,8 +105,15 @@ export interface Absence {
   note?: string;
 }
 
+/** App-weite Anzeige-Einstellungen (werden mit der Datensicherung gespeichert). */
+export interface AppSettings {
+  /** Summen (Monat, Jahr) als Dezimalstunden anzeigen, z. B. 156,73 h statt 156:44 h. */
+  decimalHours?: boolean;
+}
+
 export interface AppState {
   version: 1;
+  settings?: AppSettings;
   projects: Project[];
   sessions: Session[];
   absences: Absence[];

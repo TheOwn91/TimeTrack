@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { DEMO, demoState } from './demo';
-import { dateKey, uid } from './time';
+import { dateKey, fmtHours, uid } from './time';
 import type { AppState, Project, SurchargeRule } from './types';
 
 const STORAGE_KEY = DEMO ? 'timetrack.demo.v3' : 'timetrack.v1';
@@ -59,6 +59,7 @@ export function validateState(data: unknown): AppState {
     sessions: d.sessions,
     absences: Array.isArray(d.absences) ? d.absences : [],
     selectedProjectId: d.selectedProjectId,
+    settings: d.settings && typeof d.settings === 'object' ? d.settings : undefined,
   };
 }
 
@@ -109,6 +110,13 @@ export function useStore(): StoreValue {
   const ctx = useContext(StoreContext);
   if (!ctx) throw new Error('StoreProvider fehlt');
   return ctx;
+}
+
+/** Formatiert Stunden-Summen gemäß Einstellung (h:mm oder dezimal). */
+export function useHours() {
+  const { state } = useStore();
+  const decimal = !!state.settings?.decimalHours;
+  return (minutes: number, withSign = false) => fmtHours(minutes, decimal, withSign);
 }
 
 /** Sekündlich aktualisierter Zeitstempel (nur wenn aktiv). */

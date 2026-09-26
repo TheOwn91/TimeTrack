@@ -1,11 +1,31 @@
 [
   {
+    "version": "0.10.0",
+    "date": "26.09.2026",
+    "changes": [
+      "„Nachtschicht dem Folgetag zuordnen“ gibt es jetzt für jeden Arbeitgeber (Einstellungen)",
+      "Die Option verschiebt nur Schichten, die ab 18 Uhr beginnen – Früh- und Tagesschichten bleiben an ihrem Tag",
+      "Tages-Editor: Ende und Pausen werden ab dem echten Schichtbeginn gerechnet"
+    ]
+  },
+  {
+    "version": "0.9.0",
+    "date": "26.09.2026",
+    "changes": [
+      "Summen (Monat, Jahr) wahlweise als Dezimalzahl, z. B. 156,73 h – unter „Einstellungen → Anzeige“",
+      "„Alle Daten löschen“ unter „Einstellungen → Datensicherung“",
+      "Kurzarbeit wird jetzt wie Urlaub mit dem Tagessoll gutgeschrieben"
+    ],
+    "commit": "d8a9e270448e83e1f9f5ebea52afb3e30a0a703c"
+  },
+  {
     "version": "0.8.0",
     "date": "26.09.2026",
     "changes": [
       "Für Hahn Automation: Nachtschicht dem Folgetag zuordnen (Anstempeln Sonntag → steht beim Montag); Zulagen weiter nach echter Uhrzeit",
       "Monatsansicht und PDF kennzeichnen einen Schichtbeginn am Vortag mit „−1“"
-    ]
+    ],
+    "commit": "f0c2c4ecf419d6f646d5b52606d733f8a4efa9d7"
   },
   {
     "version": "0.7.1",

@@ -1,5 +1,5 @@
 import type { MonthSummary } from '../lib/calc';
-import { fmtDuration } from '../lib/time';
+import { useHours } from '../lib/store';
 import { overtimeSurcharge } from '../lib/year';
 
 const fmtDays = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 1 });
@@ -15,6 +15,7 @@ interface Props {
 
 /** Urlaubstage des Monats und Überstunden-Zuschlag unter den Monatsstunden. */
 export function MonthExtras({ month, year, vacationRemaining, complete }: Props) {
+  const hours = useHours();
   const vacation = month.absenceCounts.urlaub ?? 0;
   // Satz, der zum Monatsende gilt
   const pct = month.endTerms.overtimeSurchargePercent ?? 0;
@@ -34,7 +35,7 @@ export function MonthExtras({ month, year, vacationRemaining, complete }: Props)
           <span>
             Überstundenzuschlag ({pct} %){complete ? '' : ' – am Monatsende'}
           </span>
-          <span>{surcharge > 0 ? `${fmtDuration(surcharge, true)} h` : '–'}</span>
+          <span>{surcharge > 0 ? `${hours(surcharge, true)} h` : '–'}</span>
         </div>
       )}
     </div>
