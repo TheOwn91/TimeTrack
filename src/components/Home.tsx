@@ -4,22 +4,23 @@ import { DEMO } from '../lib/demo';
 import { isStandalone } from '../lib/device';
 import { notifyEnabled, requestNotifyPermission } from '../lib/status';
 import { buildIndex, daySummary, monthSummary, sessionStats, untrackedDays } from '../lib/calc';
-import { newProject, useNow, useStore } from '../lib/store';
+import { useNow, useStore } from '../lib/store';
 import { MONTHS, dateKey, fmtClock, fmtDate, fmtDuration, fmtMoney, fmtTime, uid } from '../lib/time';
 import type { AbsenceType, DateKey } from '../lib/types';
+import { yearOverview } from '../lib/year';
 import { DayEditor } from './DayEditor';
+import { MonthExtras } from './MonthExtras';
 import { ProjectPicker } from './ProjectPicker';
 
 const INSTALL_HINT_KEY = 'timetrack.installHintDismissed';
 
 const QUICK_ABSENCES: AbsenceType[] = ['urlaub', 'krank', 'ueberstunden', 'kurzarbeit', 'frei'];
 
-export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
+export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => void; onStartSetup: () => void }) {
   const { state, update } = useStore();
   const active = state.sessions.find((s) => s.end === undefined);
   const now = useNow(true, active ? 1000 : 30_000);
   const [editDate, setEditDate] = useState<DateKey | null>(null);
-  const [newName, setNewName] = useState('');
   const [hideInstall, setHideInstall] = useState(() => {
     try {
       return DEMO || isStandalone() || localStorage.getItem(INSTALL_HINT_KEY) === '1';
@@ -47,29 +48,10 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
       <div className="page">
         <div className="card onboarding">
           <h2>Willkommen bei TimeTrack 👋</h2>
-          <p>Lege zuerst einen Arbeitgeber oder ein Projekt an.</p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!newName.trim()) return;
-              const p = newProject(newName.trim(), state.projects.length);
-              update((d) => {
-                d.projects.push(p);
-                d.selectedProjectId = p.id;
-              });
-            }}
-          >
-            <input
-              autoFocus
-              placeholder="z. B. Firma Muster GmbH"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-            />
-            <button className="btn primary full" type="submit">
-              Anlegen
-            </button>
-          </form>
-          <p className="muted small">Stundenlohn, Sollzeit und Zulagen kannst du danach unter „Arbeitgeber“ einstellen.</p>
+          <p>Lege zuerst deinen Arbeitgeber an – der Assistent führt dich in wenigen Schritten durch.</p>
+          <button className="btn primary full" onClick={onStartSetup}>
+            Einrichtung starten
+          </button>
         </div>
       </div>
     );
@@ -128,7 +110,7 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
             disabled={!!active}
             onChange={(id) => update((s) => void (s.selectedProjectId = id))}
           />
-          <button className="icon-btn" onClick={onOpenProjects} aria-label="Arbeitgeber verwalten" title="Arbeitgeber verwalten">
+          <button className="icon-btn" onClick={onOpenProjects} aria-label="Einstellungen" title="Einstellungen">
             ⚙
           </button>
         </div>
@@ -184,6 +166,12 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
             <strong>{fmtDuration(month.balance, true)} h</strong>
           </div>
         </div>
+        <MonthExtras
+          month={month}
+          year={d.getFullYear()}
+          vacationRemaining={yearOverview(state, project, d.getFullYear(), now).vacation.remaining}
+          complete={false}
+        />
         {month.credit > 0 && (
           <p className="muted small">Davon {fmtDuration(month.credit)} h Gutschrift (Urlaub, Krank …)</p>
         )}
@@ -198,10 +186,10 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
                   {s.rule.name} <span className="muted">({s.rule.percent} %)</span>
                 </span>
                 <span>{fmtDuration(s.minutes)} h</span>
-                {project.hourlyRate > 0 && <strong>{fmtMoney(s.amount)}</strong>}
+                {month.hasRate && <strong>{fmtMoney(s.amount)}</strong>}
               </li>
             ))}
-            {project.hourlyRate > 0 && (
+            {month.hasRate && (
               <li className="total">
                 <span>Summe Zulagen</span>
                 <span />

@@ -1,6 +1,7 @@
 import { ABSENCE_ORDER, ABSENCE_TYPES } from '../lib/absences';
 import { buildIndex, daySummary } from '../lib/calc';
 import { ask } from '../lib/demo';
+import { projectAt } from '../lib/terms';
 import { useNow, useStore } from '../lib/store';
 import { MINUTE, combine, fmtDate, fmtDuration, fmtTime, uid } from '../lib/time';
 import type { AbsenceType, DateKey, Project, Session } from '../lib/types';
@@ -23,6 +24,8 @@ export function DayEditor({ project, date, onClose }: Props) {
   const { state, update } = useStore();
   const now = useNow(true, 1000);
   const day = daySummary(project, date, buildIndex(state, project.id), now);
+  // Soll und Zulagen-Sätze, die an diesem Tag gelten
+  const terms = projectAt(project, date);
 
   const updateSession = (id: string, fn: (s: Session) => void) =>
     update((d) => {
@@ -39,7 +42,7 @@ export function DayEditor({ project, date, onClose }: Props) {
   const addSession = () => {
     const last = day.sessions[day.sessions.length - 1];
     const startTs = last?.end ? last.end + 30 * MINUTE : combine(date, '08:00');
-    const workMin = Math.round(project.dailyTargetHours * 60);
+    const workMin = Math.round(terms.dailyTargetHours * 60);
     const pauses =
       !last && workMin > 360 ? [{ start: combine(date, '12:00'), end: combine(date, '12:30') }] : [];
     const endTs = startTs + (workMin + (pauses.length ? 30 : 0)) * MINUTE;
@@ -191,7 +194,7 @@ export function DayEditor({ project, date, onClose }: Props) {
               Enthält {Math.round(day.autoBreak)} min automatisch abgezogene gesetzliche Pause.
             </p>
           )}
-          {project.surcharges
+          {terms.surcharges
             .filter((r) => r.enabled && (day.surcharges[r.id] ?? 0) > 0)
             .map((r) => (
               <div key={r.id}>
@@ -234,7 +237,7 @@ export function DayEditor({ project, date, onClose }: Props) {
       </section>
       <p className="muted small">
         Tipp: Endzeiten vor der Beginnzeit werden dem Folgetag zugeordnet (Nachtschicht). Tagessoll:{' '}
-        {fmtDuration(project.dailyTargetHours * 60)} h
+        {fmtDuration(terms.dailyTargetHours * 60)} h
       </p>
     </Modal>
   );

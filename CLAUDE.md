@@ -8,6 +8,8 @@ Offline-fähige PWA zur Arbeitszeiterfassung (React + TypeScript + Vite). UI-Spr
 - **UI-Änderungen immer in hell UND dunkel ansehen** (Screenshots im Handy-Viewport, z. B. Playwright
   mit `colorScheme: 'dark'` und zusätzlich `data-theme="dark"` am `<html>`-Element bei hellem System).
   Auf Kontrast achten: Texte, Chips, Tags, Rahmen, Modals, Hervorhebungen.
+- Auch bei **320 px Breite** prüfen: `document.documentElement.scrollWidth` darf nie größer als die
+  Bildschirmbreite sein (sonst zoomt das Handy heraus und Fenster ragen über den Rand).
 - Die Demo als Artifact immer **mit dem Grundgerüst der Artifact-Seite** testen: Es setzt am `body`
   eine eigene Schrift und Farbe (`font:14px …; color:#141413; background:#faf9f5`). Die App muss Farbe
   und Schrift deshalb selbst am `body` setzen; nur `:root` reicht nicht.
@@ -25,3 +27,13 @@ Offline-fähige PWA zur Arbeitszeiterfassung (React + TypeScript + Vite). UI-Spr
 
 `npm run build:demo -- <ziel.html>` erzeugt eine einzelne HTML-Datei mit Beispieldaten
 (`src/lib/demo.ts`). In der Demo gibt es keine Downloads, Dialoge oder Service Worker.
+
+## Versionen / „Was ist neu?“
+
+Bei jeder für Nutzer sichtbaren Änderung in `src/lib/changelog.json` oben einen Eintrag ergänzen
+(neue Versionsnummer, Datum, Änderungen in einfachen Worten) und `version` in `package.json` angleichen.
+Während der Entwicklung bleibt die Version bei 0.x (neue Funktionen: 0.x → 0.x+1, Korrekturen: 0.x.y → 0.x.y+1);
+1.0.0 erst nach Absprache mit dem Nutzer zum offiziellen Start.
+Nach einem Update zeigt die App diese Einträge einmalig beim Start (abschaltbar).
+Sobald die Version auf `main` ankommt, legt `.github/workflows/release.yml` Tag `vX.Y.Z` und
+GitHub-Release an (0.x als Pre-release). Aus dieser Umgebung lassen sich keine Tags pushen.

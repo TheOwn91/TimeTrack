@@ -1,0 +1,71 @@
+[
+  {
+    "version": "0.7.0",
+    "date": "26.09.2026",
+    "changes": [
+      "Einrichtungs-Assistent beim ersten Start und für neue Arbeitgeber",
+      "Fragt Arbeitszeit, Lohn, Zulagen und Startwerte (Resturlaub, Überstunden) Schritt für Schritt ab",
+      "Hinweis zum Installieren auf dem Homescreen, solange die App noch nicht installiert ist"
+    ]
+  },
+  {
+    "version": "0.6.0",
+    "date": "26.09.2026",
+    "changes": [
+      "Stundenlohn, Soll pro Tag, Arbeitstage und Zuschläge mit „gültig ab“ – vergangene Monate bleiben unverändert",
+      "Verlauf der Änderungen unter „Einstellungen → Lohn & Arbeitszeit“",
+      "PDF-Bericht nennt Änderungen innerhalb des Monats"
+    ],
+    "commit": "5b8b3cf42f4bc06b3b1efc5e7f652c18049d480b"
+  },
+  {
+    "version": "0.5.0",
+    "date": "26.09.2026",
+    "changes": [
+      "„Arbeitgeber“ heißt jetzt „Einstellungen“",
+      "Automatische Updates lassen sich ein- und ausschalten",
+      "„Auf Updates prüfen“ und „Jetzt aktualisieren“ in den Einstellungen",
+      "Nach einem Update zeigt die App, was neu ist"
+    ],
+    "commit": "9ea42e1a5a3c2d556f9d6b52950343376d1cff35"
+  },
+  {
+    "version": "0.4.0",
+    "date": "26.09.2026",
+    "changes": [
+      "Neue Seite „Jahr“: Urlaub (Anspruch, Übertrag, genommen, geplant, Rest) und Überstundenkonto Monat für Monat",
+      "Resturlaub und Überstunden werden automatisch ins nächste Jahr übernommen",
+      "Zuschlag auf Überstunden – wird am Monatsende gutgeschrieben",
+      "Urlaubstage und Resturlaub in der Monatsübersicht",
+      "Diese Meldung nach Updates (abschaltbar)"
+    ],
+    "commit": "a2cf88c127c3a8d56ef50a4bf9c442f3f690ceee"
+  },
+  {
+    "version": "0.3.0",
+    "date": "26.09.2026",
+    "commit": "e53c00d476e65fe16972ee4ffc4a85ab389b7798",
+    "changes": [
+      "Symbol in der Statusleiste, solange die Zeit läuft",
+      "Zahlenfelder akzeptieren Komma („22,50“)",
+      "Besser lesbarer Dark Mode"
+    ]
+  },
+  {
+    "version": "0.2.0",
+    "date": "26.09.2026",
+    "commit": "2c054992a908527946670aecd598675d231cbee7",
+    "changes": [
+      "Läuft offline als App auf dem Handy",
+      "PDF-Bericht und Datensicherung über das Teilen-Menü"
+    ]
+  },
+  {
+    "version": "0.1.0",
+    "date": "25.09.2026",
+    "commit": "b653f407a3a64253b6c914dd9abe536e296d22d1",
+    "changes": [
+      "Erste Version: Zeiterfassung, Monatsansicht, Zulagen, PDF-Monatsbericht"
+    ]
+  }
+]

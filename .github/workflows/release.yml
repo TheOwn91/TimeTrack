@@ -1,0 +1,26 @@
+name: Versionen auf GitHub anlegen
+
+# Legt für neue Einträge in src/lib/changelog.json automatisch Tag und Release an.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: releases
+  cancel-in-progress: false
+
+jobs:
+  releases:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/create-releases.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}

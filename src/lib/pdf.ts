@@ -4,7 +4,9 @@ import { ABSENCE_TYPES } from './absences';
 import { shareOrDownload } from './device';
 import { monthSummary } from './calc';
 import { STATES } from './holidays';
-import { MONTHS, WEEKDAYS_SHORT, dateKey, fmtDuration, fmtHoursDecimal, fmtMoney, fmtTime, parseDateKey, pad } from './time';
+import { describeChanges, termsList } from './terms';
+import { yearOverview } from './year';
+import { MONTHS, WEEKDAYS_SHORT, dateKey, fmtDate, fmtDuration, fmtHoursDecimal, fmtMoney, fmtTime, parseDateKey, pad } from './time';
 import type { AppState, Project } from './types';
 
 /** Die Standardschriften von jsPDF kennen nur WinAnsi – U+2212 (Minus) ersetzen. */
@@ -15,7 +17,7 @@ export function buildMonthReport(state: AppState, project: Project, year: number
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
   const title = `Monatsbericht ${MONTHS[month0]} ${year}`;
-  const hasRate = project.hourlyRate > 0;
+  const hasRate = sum.hasRate;
   const activeRules = sum.surcharges.map((s) => s.rule);
 
   doc.setFontSize(18);
@@ -24,11 +26,26 @@ export function buildMonthReport(state: AppState, project: Project, year: number
   doc.setTextColor(90);
   doc.text(`Arbeitgeber / Projekt: ${project.name}`, 14, 25);
   doc.text(
-    `Soll/Tag: ${fmtDuration(project.dailyTargetHours * 60)} h  ·  Feiertage: ${STATES[project.state] ?? '–'}`,
+    `Soll/Tag: ${fmtDuration(sum.endTerms.dailyTargetHours * 60)} h  ·  Feiertage: ${STATES[project.state] ?? '–'}`,
     14,
     30,
   );
   doc.text(`Erstellt am ${new Date(now).toLocaleDateString('de-DE')}`, pageWidth - 14, 18, { align: 'right' });
+
+  // Änderungen von Stundenlohn, Soll, Zuschlägen … innerhalb dieses Monats
+  const first = sum.days[0].date;
+  const last = sum.days[sum.days.length - 1].date;
+  const allTerms = termsList(project);
+  const changes = allTerms
+    .map((t, i) => ({ t, prev: allTerms[i - 1] }))
+    .filter(({ t }) => t.from >= first && t.from <= last)
+    .map(({ t, prev }) => `Ab ${fmtDate(t.from, false)}: ${describeChanges(prev, t, project).join(', ')}`);
+  let tableTop = 36;
+  if (changes.length) {
+    doc.setFontSize(9);
+    changes.forEach((line, i) => doc.text(pdfSafe(line), 14, 35 + i * 4.5));
+    tableTop = 38 + changes.length * 4.5;
+  }
   doc.setTextColor(0);
 
   const body = sum.days.map((d): string[] => {
@@ -57,7 +74,7 @@ export function buildMonthReport(state: AppState, project: Project, year: number
   });
 
   autoTable(doc, {
-    startY: 36,
+    startY: tableTop,
     head: [['Datum', 'Zeiten', 'Pause', 'Arbeit', 'Soll', 'Zulagen', 'Bemerkung']],
     body: body.map((r) => r.map(pdfSafe)),
     theme: 'grid',
@@ -87,6 +104,22 @@ export function buildMonthReport(state: AppState, project: Project, year: number
     ['Soll', `${fmtDuration(sum.target)} h`, `${fmtHoursDecimal(sum.target)} h`],
     ['Saldo (Über-/Minusstunden)', `${fmtDuration(sum.balance, true)} h`, `${fmtHoursDecimal(sum.balance)} h`],
   ];
+  const overview = yearOverview(state, project, year, now);
+  const account = overview.overtime.months[month0];
+  const pct = sum.endTerms.overtimeSurchargePercent ?? 0;
+  if (pct > 0) {
+    summaryRows.push([
+      `Überstundenzuschlag (${pct} %)${account.complete ? '' : ' – am Monatsende'}`,
+      `${fmtDuration(account.surcharge, true)} h`,
+      `${fmtHoursDecimal(account.surcharge)} h`,
+    ]);
+  }
+  summaryRows.push([
+    account.complete ? 'Überstundenkonto zum Monatsende' : 'Überstundenkonto (Stand heute)',
+    `${fmtDuration(account.total, true)} h`,
+    `${fmtHoursDecimal(account.total)} h`,
+  ]);
+  summaryRows.push([`Resturlaub ${year}`, `${overview.vacation.remaining.toLocaleString('de-DE')} Tag(e)`, '']);
   for (const [type, count] of Object.entries(sum.absenceCounts)) {
     summaryRows.push([ABSENCE_TYPES[type as keyof typeof ABSENCE_TYPES].label, `${count} Tag(e)`, '']);
   }

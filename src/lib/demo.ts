@@ -1,4 +1,5 @@
 import { holidayName } from './holidays';
+import { BEGINNING } from './terms';
 import { MINUTE, addDays, combine, dateKey, parseDateKey, uid } from './time';
 import type { Absence, AppState, Project, Session } from './types';
 
@@ -48,6 +49,10 @@ export function demoState(now = Date.now()): AppState {
     autoBreak: true,
     state: 'NW',
     startDate,
+    vacationDaysPerYear: 30,
+    vacationAtStart: 14,
+    overtimeAtStartHours: 12.5,
+    overtimeSurchargePercent: 25,
     surcharges: [
       { id: uid(), name: 'Spätschicht', kind: 'time', from: '18:00', to: '22:00', percent: 10, enabled: true },
       { id: uid(), name: 'Nachtschicht', kind: 'time', from: '22:00', to: '06:00', percent: 25, enabled: true },
@@ -113,6 +118,31 @@ export function demoState(now = Date.now()): AppState {
       sessions.push(session(project, d, `07:${jitter(m)}`, `15:${jitter(30 + m)}`, ['11:30', '12:00'], m === 7 ? 'Schulung Stapler' : undefined));
     }
   }
+
+  // Geplanter Urlaub: drei Arbeitstage Mitte nächsten Monats
+  const planned = parseDateKey(today);
+  planned.setMonth(planned.getMonth() + 1, 12);
+  for (let n = 0; n < 3; planned.setDate(planned.getDate() + 1)) {
+    const d = dateKey(planned);
+    const wd = planned.getDay();
+    if (wd === 0 || wd === 6 || holidayName(d, 'NW')) continue;
+    absences.push({ id: uid(), projectId: project.id, date: d, type: 'urlaub' });
+    n++;
+  }
+
+  // Lohnerhöhung zum Monatsanfang: vorher 16,90 €, seitdem 17,50 € (Verlauf in den Einstellungen)
+  const monthStart = `${today.slice(0, 7)}-01`;
+  const t = {
+    hourlyRate: project.hourlyRate,
+    dailyTargetHours: project.dailyTargetHours,
+    workdays: project.workdays,
+    overtimeSurchargePercent: project.overtimeSurchargePercent ?? 0,
+    surchargePercents: Object.fromEntries(project.surcharges.map((r) => [r.id, r.percent])),
+  };
+  project.terms = [
+    { ...t, from: BEGINNING, hourlyRate: 16.9 },
+    { ...t, from: monthStart },
+  ];
 
   return { version: 1, projects: [project, side], sessions, absences, selectedProjectId: project.id };
 }

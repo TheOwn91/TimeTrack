@@ -16,10 +16,11 @@ interface Props {
 const format = (n: number, max: number, min: number) =>
   n.toLocaleString('de-DE', { minimumFractionDigits: min, maximumFractionDigits: max, useGrouping: false });
 
-/** "22,5" oder "22.5" → 22.5; leer oder ungültig → null. */
-export function parseDecimal(text: string): number | null {
+/** "22,5" oder "22.5" → 22.5; leer oder ungültig → null. Mit `allowNegative` auch "-3,5". */
+export function parseDecimal(text: string, allowNegative = false): number | null {
   const t = text.trim().replace(',', '.');
-  if (t === '' || !/^\d*\.?\d*$/.test(t) || t === '.') return null;
+  const pattern = allowNegative ? /^-?\d*\.?\d*$/ : /^\d*\.?\d*$/;
+  if (!pattern.test(t) || !/\d/.test(t)) return null;
   return Number(t);
 }
 
@@ -37,13 +38,15 @@ export function NumberField({ value, onChange, decimals = 0, minDecimals = 0, mi
   }, [value, decimals, minDecimals, focused]);
 
   const clamp = (n: number) => Math.min(max ?? Infinity, Math.max(min, n));
+  const negative = min < 0;
 
   return (
     <input
       id={id}
       className={className}
       type="text"
-      inputMode={decimals > 0 ? 'decimal' : 'numeric'}
+      // Die Zifferntastatur hat oft kein Minus – bei negativen Werten normale Tastatur
+      inputMode={negative ? 'text' : decimals > 0 ? 'decimal' : 'numeric'}
       autoComplete="off"
       value={text}
       onFocus={(e) => {
@@ -53,14 +56,14 @@ export function NumberField({ value, onChange, decimals = 0, minDecimals = 0, mi
         else e.currentTarget.select();
       }}
       onChange={(e) => {
-        const next = e.target.value.replace(/[^\d.,]/g, '');
+        const next = e.target.value.replace(negative ? /[^\d.,-]/g : /[^\d.,]/g, '');
         setText(next);
-        const n = parseDecimal(next);
+        const n = parseDecimal(next, negative);
         if (n !== null) onChange(clamp(n));
       }}
       onBlur={() => {
         setFocused(false);
-        const n = parseDecimal(text);
+        const n = parseDecimal(text, negative);
         const final = n === null ? 0 : clamp(n);
         if (final !== value) onChange(final);
         setText(format(final, decimals, minDecimals));

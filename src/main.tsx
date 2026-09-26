@@ -1,7 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import { registerServiceWorker, requestPersistentStorage } from './lib/device';
+import { requestPersistentStorage } from './lib/device';
+import { registerServiceWorker } from './lib/update';
 import { StoreProvider } from './lib/store';
 import './styles.css';
 
