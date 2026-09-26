@@ -42,9 +42,9 @@ export function DayEditor({ project, date, onClose }: Props) {
 
   const addSession = () => {
     const last = day.sessions[day.sessions.length - 1];
-    // Bei „Schicht dem Folgetag zuordnen“ beginnt die Schicht am Vorabend
-    const nextDay = shiftsToNextDay(project);
-    const startTs = last?.end ? last.end + 30 * MINUTE : combine(workDate(project, date), nextDay ? '21:30' : '08:00');
+    // Bei „Nachtschicht dem Folgetag zuordnen“ beginnt die Schicht am Vorabend
+    const startHm = shiftsToNextDay(project) ? '21:30' : '08:00';
+    const startTs = last?.end ? last.end + 30 * MINUTE : combine(workDate(project, date, startHm), startHm);
     const workMin = Math.round(terms.dailyTargetHours * 60);
     const pauses = !last && workMin > 360 ? [{ start: startTs + 240 * MINUTE, end: startTs + 270 * MINUTE }] : [];
     const endTs = startTs + (workMin + (pauses.length ? 30 : 0)) * MINUTE;
@@ -89,11 +89,13 @@ export function DayEditor({ project, date, onClose }: Props) {
                     e.target.value &&
                     updateSession(s.id, (x) => {
                       const duration = (x.end ?? now) - x.start;
-                      // Uhrzeit am Kalendertag des bisherigen Beginns (bei Nachtschicht ggf. der Vortag)
-                      const start = combine(dateKey(x.start), e.target.value);
+                      // Beginn ab 18 Uhr bei „Nachtschicht dem Folgetag zuordnen“: am Vortag, sonst am angezeigten Tag
+                      const start = combine(workDate(project, date, e.target.value), e.target.value);
                       const shift = start - x.start;
+                      const dayChanged = dateKey(start) !== dateKey(x.start);
                       x.start = start;
-                      if (x.end !== undefined && x.end <= start) x.end = start + duration;
+                      // Wechselt der Kalendertag, wandert die ganze Schicht mit (Dauer bleibt)
+                      if (x.end !== undefined && (dayChanged || x.end <= start)) x.end = dayChanged ? x.end + shift : start + duration;
                       x.pauses = x.pauses.map((p) => ({
                         start: p.start + shift,
                         end: p.end !== undefined ? p.end + shift : undefined,
@@ -111,7 +113,7 @@ export function DayEditor({ project, date, onClose }: Props) {
                     type="time"
                     value={fmtTime(s.end)}
                     onChange={(e) =>
-                      e.target.value && updateSession(s.id, (x) => (x.end = toTs(date, e.target.value, x.start + 1)))
+                      e.target.value && updateSession(s.id, (x) => (x.end = toTs(dateKey(x.start), e.target.value, x.start + 1)))
                     }
                   />
                 )}
@@ -126,7 +128,7 @@ export function DayEditor({ project, date, onClose }: Props) {
                     value={fmtTime(p.start)}
                     onChange={(e) =>
                       e.target.value &&
-                      updateSession(s.id, (x) => (x.pauses[pi].start = toTs(date, e.target.value, x.start)))
+                      updateSession(s.id, (x) => (x.pauses[pi].start = toTs(dateKey(x.start), e.target.value, x.start)))
                     }
                   />
                 </label>
@@ -140,7 +142,7 @@ export function DayEditor({ project, date, onClose }: Props) {
                       value={fmtTime(p.end)}
                       onChange={(e) =>
                         e.target.value &&
-                        updateSession(s.id, (x) => (x.pauses[pi].end = toTs(date, e.target.value, x.pauses[pi].start)))
+                        updateSession(s.id, (x) => (x.pauses[pi].end = toTs(dateKey(x.start), e.target.value, x.pauses[pi].start)))
                       }
                     />
                   )}
@@ -240,7 +242,7 @@ export function DayEditor({ project, date, onClose }: Props) {
       </section>
       <p className="muted small">
         {shiftsToNextDay(project)
-          ? `Schichten stehen beim Folgetag: Die Beginnzeit neuer Einträge bezieht sich auf ${fmtDate(workDate(project, date))}. `
+          ? `Nachtschichten stehen beim Folgetag: Ein Beginn ab 18 Uhr bezieht sich auf ${fmtDate(workDate(project, date, '18:00'))}, früher auf diesen Tag. `
           : 'Tipp: Endzeiten vor der Beginnzeit werden dem Folgetag zugeordnet (Nachtschicht). '}
         Tagessoll: {fmtDuration(terms.dailyTargetHours * 60)} h
       </p>

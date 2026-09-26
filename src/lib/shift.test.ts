@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildIndex, daySummary, monthSummary } from './calc';
-import { hasHahnOptions, setShiftToNextDay, shiftsToNextDay, workDate } from './shift';
+import { sessionDay, setShiftToNextDay, shiftsToNextDay, workDate } from './shift';
 import { combine } from './time';
 import type { AppState, Project } from './types';
 
@@ -38,12 +38,33 @@ const state = (p: Project): AppState => ({
 });
 const now = combine('2026-09-30', '12:00');
 
-describe('Schicht dem Folgetag zuordnen (Hahn Automation)', () => {
-  it('Option gibt es nur für „Hahn Automation…“', () => {
-    expect(hasHahnOptions({ name: 'Hahn Automation Group' })).toBe(true);
-    expect(hasHahnOptions({ name: 'hahn automation' })).toBe(true);
-    expect(hasHahnOptions({ name: 'Muster GmbH' })).toBe(false);
-    expect(shiftsToNextDay({ name: 'Muster GmbH', shiftToNextDay: true })).toBe(false);
+describe('Nachtschicht dem Folgetag zuordnen', () => {
+  it('Option gibt es für jeden Arbeitgeber', () => {
+    expect(shiftsToNextDay({ shiftToNextDay: true })).toBe(true);
+    expect(shiftsToNextDay({})).toBe(false);
+    const p: Project = { ...hahn(), name: 'Muster GmbH' };
+    setShiftToNextDay(p, true);
+    expect(sessionDay(p, { start: combine('2026-09-27', '21:30') })).toBe('2026-09-28');
+  });
+
+  it('nur Schichten ab 18 Uhr wandern, Tagesschichten bleiben', () => {
+    const p = { shiftToNextDay: true };
+    expect(sessionDay(p, { start: combine('2026-09-27', '18:00') })).toBe('2026-09-28');
+    expect(sessionDay(p, { start: combine('2026-09-27', '17:59') })).toBe('2026-09-27');
+    expect(sessionDay(p, { start: combine('2026-09-28', '06:00') })).toBe('2026-09-28');
+    expect(sessionDay(p, { start: combine('2026-09-28', '00:30') })).toBe('2026-09-28');
+  });
+
+  it('Frühschicht steht mit Option beim eigenen Tag', () => {
+    const p = hahn();
+    setShiftToNextDay(p, true);
+    const st: AppState = {
+      ...state(p),
+      sessions: [{ id: 'f', projectId: 'p', start: combine('2026-09-28', '06:00'), end: combine('2026-09-28', '14:15'), pauses: [] }],
+    };
+    const idx = buildIndex(st, 'p');
+    expect(daySummary(p, '2026-09-28', idx, now).sessions).toHaveLength(1);
+    expect(daySummary(p, '2026-09-29', idx, now).sessions).toHaveLength(0);
   });
 
   it('ohne Option steht die Schicht beim Sonntag', () => {
@@ -74,11 +95,12 @@ describe('Schicht dem Folgetag zuordnen (Hahn Automation)', () => {
     expect(p.workdays).toEqual([0, 1, 2, 3, 4]);
   });
 
-  it('Beginnzeit im Tages-Editor bezieht sich auf den Vortag', () => {
+  it('Beginn ab 18 Uhr im Tages-Editor bezieht sich auf den Vortag', () => {
     const p = hahn();
-    expect(workDate(p, '2026-09-28')).toBe('2026-09-28');
+    expect(workDate(p, '2026-09-28', '21:30')).toBe('2026-09-28');
     setShiftToNextDay(p, true);
-    expect(workDate(p, '2026-09-28')).toBe('2026-09-27');
+    expect(workDate(p, '2026-09-28', '21:30')).toBe('2026-09-27');
+    expect(workDate(p, '2026-09-28', '06:00')).toBe('2026-09-28');
   });
 
   it('Monatsgrenze: Schicht ab 30.09. zählt im Oktober', () => {
