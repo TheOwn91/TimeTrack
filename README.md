@@ -22,6 +22,7 @@ Einmalig nötig: im Repository unter *Settings → Pages → Source* „GitHub A
 
 ## Funktionen
 
+- **Einrichtungs-Assistent** beim ersten Start und für neue Arbeitgeber (Arbeitszeit, Lohn, Zulagen, Startwerte; Installationshinweis nur, solange die App nicht installiert ist)
 - **Arbeitgeber / Projekte** anlegen mit Stundenlohn, Tagessoll, Arbeitstagen, Bundesland (Feiertage) und Zulagen-Regeln
 - **Start / Pause / Beenden** per Klick; die zuletzt gewählte Arbeit bleibt ausgewählt
 - **Pausen automatisch**: Pausen-Button, Lücken zwischen Buchungen eines Tages zählen als Pause, optional wird die gesetzliche Mindestpause (§ 4 ArbZG: > 6 h → 30 min, > 9 h → 45 min) abgezogen

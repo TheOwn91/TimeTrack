@@ -1,5 +1,14 @@
 [
   {
+    "version": "0.7.0",
+    "date": "26.09.2026",
+    "changes": [
+      "Einrichtungs-Assistent beim ersten Start und für neue Arbeitgeber",
+      "Fragt Arbeitszeit, Lohn, Zulagen und Startwerte (Resturlaub, Überstunden) Schritt für Schritt ab",
+      "Hinweis zum Installieren auf dem Homescreen, solange die App noch nicht installiert ist"
+    ]
+  },
+  {
     "version": "0.6.0",
     "date": "26.09.2026",
     "changes": [

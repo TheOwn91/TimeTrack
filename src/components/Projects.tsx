@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { ask, notify } from '../lib/demo';
 import { shareOrDownload } from '../lib/device';
 import { STATES } from '../lib/holidays';
-import { PROJECT_COLORS, newProject, useStore, validateState } from '../lib/store';
+import { PROJECT_COLORS, useStore, validateState } from '../lib/store';
 import { addRulePercent } from '../lib/terms';
 import { dateKey, uid } from '../lib/time';
 import type { Project, SurchargeKind, SurchargeRule } from '../lib/types';
@@ -203,8 +203,8 @@ function ProjectForm({ project }: { project: Project }) {
   );
 }
 
-export function Projects({ onShowWhatsNew }: { onShowWhatsNew: () => void }) {
-  const { state, update, replace } = useStore();
+export function Projects({ onShowWhatsNew, onNewEmployer }: { onShowWhatsNew: () => void; onNewEmployer: (name: string) => void }) {
+  const { state, replace } = useStore();
   const [openId, setOpenId] = useState<string | null>(state.selectedProjectId ?? null);
   const [name, setName] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
@@ -232,13 +232,8 @@ export function Projects({ onShowWhatsNew }: { onShowWhatsNew: () => void }) {
           className="row"
           onSubmit={(e) => {
             e.preventDefault();
-            if (!name.trim()) return;
-            const p = newProject(name.trim(), state.projects.length);
-            update((d) => {
-              d.projects.push(p);
-              d.selectedProjectId = p.id;
-            });
-            setOpenId(p.id);
+            // Der Assistent fragt Arbeitszeit, Lohn und Startwerte ab
+            onNewEmployer(name.trim());
             setName('');
           }}
         >

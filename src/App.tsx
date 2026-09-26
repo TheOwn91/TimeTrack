@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Home } from './components/Home';
 import { MonthView } from './components/MonthView';
 import { Projects } from './components/Projects';
+import { SetupWizard } from './components/SetupWizard';
 import { WhatsNew } from './components/WhatsNew';
 import { YearView } from './components/YearView';
 import { CHANGELOG, pendingReleaseNotes, type Release } from './lib/changelog';
@@ -28,6 +29,10 @@ export function App() {
     return releases.length ? { releases, afterUpdate: true } : null;
   });
   const { state, replace } = useStore();
+  // Einrichtungs-Assistent: beim ersten Start und für neue Arbeitgeber
+  const [wizard, setWizard] = useState<{ firstRun: boolean; name?: string } | null>(() =>
+    state.projects.length === 0 ? { firstRun: true } : null,
+  );
   const [update, setUpdate] = useState(getUpdateStatus);
   useEffect(() => onUpdateStatus(setUpdate), []);
 
@@ -78,12 +83,29 @@ export function App() {
       )}
       {update.state === 'installing' && <div className="update-bar">Update wird installiert …</div>}
       <main>
-        {tab === 'home' && <Home onOpenProjects={() => setTab('projects')} />}
+        {tab === 'home' && (
+          <Home onOpenProjects={() => setTab('projects')} onStartSetup={() => setWizard({ firstRun: state.projects.length === 0 })} />
+        )}
         {tab === 'month' && <MonthView />}
         {tab === 'year' && <YearView />}
-        {tab === 'projects' && <Projects onShowWhatsNew={() => setWhatsNew({ releases: CHANGELOG, afterUpdate: false })} />}
+        {tab === 'projects' && (
+          <Projects
+            onShowWhatsNew={() => setWhatsNew({ releases: CHANGELOG, afterUpdate: false })}
+            onNewEmployer={(name) => setWizard({ firstRun: false, name })}
+          />
+        )}
       </main>
-      {whatsNew && (
+      {wizard && (
+        <SetupWizard
+          firstRun={wizard.firstRun}
+          initialName={wizard.name}
+          onClose={() => {
+            setWizard(null);
+            setTab('home');
+          }}
+        />
+      )}
+      {!wizard && whatsNew && (
         <WhatsNew releases={whatsNew.releases} afterUpdate={whatsNew.afterUpdate} onClose={() => setWhatsNew(null)} />
       )}
       {notice && (

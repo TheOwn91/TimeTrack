@@ -22,14 +22,54 @@ if (typeof window !== 'undefined') {
 }
 
 /** Hinweis bzw. Button, um die App auf dem Homescreen zu installieren. */
-export function InstallCard() {
+/** Wurde die Installation angeboten (Android/Chrome), zeigt der Browser seinen eigenen Dialog. */
+function useInstallPrompt() {
   const [, rerender] = useState(0);
   useEffect(() => {
     const l = () => rerender((n) => n + 1);
     listeners.add(l);
     return () => void listeners.delete(l);
   }, []);
+  return {
+    canPrompt: !!deferred,
+    prompt: async () => {
+      await deferred?.prompt();
+      deferred = null;
+      rerender((n) => n + 1);
+    },
+  };
+}
 
+/** Knopf bzw. Anleitung zum Installieren (für Einstellungen und Einrichtungs-Assistent). */
+export function InstallHelp() {
+  const { canPrompt, prompt } = useInstallPrompt();
+  if (canPrompt) {
+    return (
+      <button className="btn primary full" onClick={() => void prompt()}>
+        📲 App installieren
+      </button>
+    );
+  }
+  return isIOS() ? (
+    <ol className="small install-steps">
+      <li>
+        In <strong>Safari</strong> unten auf <strong>Teilen</strong> (□↑) tippen
+      </li>
+      <li>
+        <strong>„Zum Home-Bildschirm“</strong> wählen und bestätigen
+      </li>
+    </ol>
+  ) : (
+    <ol className="small install-steps">
+      <li>
+        Im Browser-Menü (<strong>⋮</strong>) auf <strong>„App installieren“</strong> bzw.{' '}
+        <strong>„Zum Startbildschirm hinzufügen“</strong> tippen
+      </li>
+    </ol>
+  );
+}
+
+export function InstallCard() {
   if (DEMO) {
     return (
       <section className="card">
@@ -57,34 +97,7 @@ export function InstallCard() {
       <p className="muted small">
         Installiert startet TimeTrack wie eine normale App vom Homescreen und funktioniert komplett offline.
       </p>
-      {deferred ? (
-        <button
-          className="btn primary full"
-          onClick={async () => {
-            await deferred?.prompt();
-            deferred = null;
-            rerender((n) => n + 1);
-          }}
-        >
-          📲 App installieren
-        </button>
-      ) : isIOS() ? (
-        <ol className="small install-steps">
-          <li>
-            In <strong>Safari</strong> unten auf <strong>Teilen</strong> (□↑) tippen
-          </li>
-          <li>
-            <strong>„Zum Home-Bildschirm“</strong> wählen und bestätigen
-          </li>
-        </ol>
-      ) : (
-        <ol className="small install-steps">
-          <li>
-            Im Browser-Menü (<strong>⋮</strong>) auf <strong>„App installieren“</strong> bzw.{' '}
-            <strong>„Zum Startbildschirm hinzufügen“</strong> tippen
-          </li>
-        </ol>
-      )}
+      <InstallHelp />
     </section>
   );
 }
