@@ -1194,3 +1194,41 @@ html {
     padding: 0.5rem 0.6rem;
   }
 }
+
+/* Auswahl mit Erklärung (Radio-Buttons) */
+.choice-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.choice-label {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.choice-group {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+.choice input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+}
+.choice > span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}

@@ -1,12 +1,21 @@
 [
   {
+    "version": "0.7.1",
+    "date": "26.09.2026",
+    "changes": [
+      "Zulagen: Gelten mehrere gleichzeitig (z. B. Sonntag und Nacht), zählt jetzt nur die höchste",
+      "Einstellbar unter „Einstellungen → Zulagen“: nur die höchste oder alle addieren"
+    ]
+  },
+  {
     "version": "0.7.0",
     "date": "26.09.2026",
     "changes": [
       "Einrichtungs-Assistent beim ersten Start und für neue Arbeitgeber",
       "Fragt Arbeitszeit, Lohn, Zulagen und Startwerte (Resturlaub, Überstunden) Schritt für Schritt ab",
       "Hinweis zum Installieren auf dem Homescreen, solange die App noch nicht installiert ist"
-    ]
+    ],
+    "commit": "d896dca8db5d897485b59351630341d11e47e033"
   },
   {
     "version": "0.6.0",

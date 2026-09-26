@@ -95,6 +95,35 @@ describe('Zulagen', () => {
   });
 });
 
+describe('Zusammentreffen mehrerer Zulagen', () => {
+  const rules: SurchargeRule[] = [
+    { id: 'night', name: 'Nacht', kind: 'time', from: '20:00', to: '06:00', percent: 25, enabled: true },
+    { id: 'sun', name: 'Sonntag', kind: 'weekday', weekdays: [0], percent: 50, enabled: true },
+    { id: 'hol', name: 'Feiertag', kind: 'holiday', percent: 50, enabled: true },
+  ];
+  // So 27.09.2026 20:00 bis Mo 06:00
+  const iv: [number, number][] = [[combine('2026-09-27', '20:00'), combine('2026-09-28', '06:00')]];
+
+  it('Standard: nur die höchste Zulage zählt', () => {
+    const m = surchargeMinutes(iv, rules, 'NW');
+    expect(m.sun).toBe(240); // So 20–24 Uhr: Sonntag 50 % statt Nacht 25 %
+    expect(m.night).toBe(360); // Mo 0–6 Uhr: nur Nacht
+    expect(m.hol).toBe(0);
+  });
+
+  it('auf Wunsch werden alle Zulagen addiert', () => {
+    const m = surchargeMinutes(iv, rules, 'NW', 'stack');
+    expect(m.sun).toBe(240);
+    expect(m.night).toBe(600);
+  });
+
+  it('bei gleichem Satz zählt die erste Regel', () => {
+    // So 04.10.2026 ist kein Feiertag; Sa 03.10.2026 schon – dort nur Feiertag (50 %) statt Nacht
+    const m = surchargeMinutes([[combine('2026-10-03', '21:00'), combine('2026-10-03', '23:00')]], rules, 'NW');
+    expect(m).toEqual({ night: 0, sun: 0, hol: 120 });
+  });
+});
+
 describe('Feiertage', () => {
   it('kennt Ostern und bundeslandspezifische Feiertage', () => {
     expect(easterSunday(2026)).toBe('2026-04-05');

@@ -11,6 +11,7 @@ import { autoUpdateEnabled, setAutoUpdateEnabled, updateSupported } from '../lib
 import { InstallHelp } from './InstallCard';
 import { Modal } from './Modal';
 import { NumberField } from './NumberField';
+import { SurchargeModeField } from './SurchargeModeField';
 import { WeekdayToggle } from './WeekdayToggle';
 
 type Step = 'employer' | 'time' | 'pay' | 'start' | 'app' | 'summary';
@@ -178,6 +179,7 @@ export function SetupWizard({ firstRun, initialName = '', onClose }: Props) {
               </label>
             ))}
           </div>
+          <SurchargeModeField value={p.surchargeMode ?? 'max'} onChange={(surchargeMode) => set({ surchargeMode })} />
           <p className="muted small">Uhrzeiten und weitere Zulagen kannst du später unter „Einstellungen“ anpassen.</p>
         </div>
       )}

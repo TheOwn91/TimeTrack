@@ -10,6 +10,7 @@ import { vacationPerYear } from '../lib/year';
 import { InstallCard } from './InstallCard';
 import { NotifyCard } from './NotifyCard';
 import { NumberField } from './NumberField';
+import { SurchargeModeField } from './SurchargeModeField';
 import { TermsSection } from './TermsSection';
 import { VersionCard } from './VersionCard';
 import { WeekdayToggle } from './WeekdayToggle';
@@ -158,6 +159,7 @@ function ProjectForm({ project }: { project: Project }) {
         Zulagen werden minutengenau berechnet. Bei Uhrzeiten über Mitternacht (z. B. 22:00–06:00) einfach Ende vor Beginn
         eintragen. Die Prozentsätze änderst du oben unter „Lohn &amp; Arbeitszeit → Werte ändern“ – mit „gültig ab“.
       </p>
+      <SurchargeModeField value={project.surchargeMode ?? 'max'} onChange={(m) => set((p) => (p.surchargeMode = m))} />
       {project.surcharges.map((r) => (
         <SurchargeEditor
           key={r.id}
