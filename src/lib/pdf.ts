@@ -4,6 +4,7 @@ import { ABSENCE_TYPES } from './absences';
 import { shareOrDownload } from './device';
 import { monthSummary } from './calc';
 import { STATES } from './holidays';
+import { yearOverview } from './year';
 import { MONTHS, WEEKDAYS_SHORT, dateKey, fmtDuration, fmtHoursDecimal, fmtMoney, fmtTime, parseDateKey, pad } from './time';
 import type { AppState, Project } from './types';
 
@@ -87,6 +88,22 @@ export function buildMonthReport(state: AppState, project: Project, year: number
     ['Soll', `${fmtDuration(sum.target)} h`, `${fmtHoursDecimal(sum.target)} h`],
     ['Saldo (Über-/Minusstunden)', `${fmtDuration(sum.balance, true)} h`, `${fmtHoursDecimal(sum.balance)} h`],
   ];
+  const overview = yearOverview(state, project, year, now);
+  const account = overview.overtime.months[month0];
+  const pct = project.overtimeSurchargePercent ?? 0;
+  if (pct > 0) {
+    summaryRows.push([
+      `Überstundenzuschlag (${pct} %)${account.complete ? '' : ' – am Monatsende'}`,
+      `${fmtDuration(account.surcharge, true)} h`,
+      `${fmtHoursDecimal(account.surcharge)} h`,
+    ]);
+  }
+  summaryRows.push([
+    account.complete ? 'Überstundenkonto zum Monatsende' : 'Überstundenkonto (Stand heute)',
+    `${fmtDuration(account.total, true)} h`,
+    `${fmtHoursDecimal(account.total)} h`,
+  ]);
+  summaryRows.push([`Resturlaub ${year}`, `${overview.vacation.remaining.toLocaleString('de-DE')} Tag(e)`, '']);
   for (const [type, count] of Object.entries(sum.absenceCounts)) {
     summaryRows.push([ABSENCE_TYPES[type as keyof typeof ABSENCE_TYPES].label, `${count} Tag(e)`, '']);
   }

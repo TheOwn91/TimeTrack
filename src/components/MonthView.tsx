@@ -5,7 +5,9 @@ import { notify } from '../lib/demo';
 import { useNow, useStore } from '../lib/store';
 import { MONTHS, WEEKDAYS_SHORT, dateKey, fmtDuration, fmtMoney, fmtTime, parseDateKey } from '../lib/time';
 import type { DateKey } from '../lib/types';
+import { yearOverview } from '../lib/year';
 import { DayEditor } from './DayEditor';
+import { MonthExtras } from './MonthExtras';
 import { ProjectPicker } from './ProjectPicker';
 
 export function MonthView() {
@@ -68,6 +70,13 @@ export function MonthView() {
             <strong>{fmtDuration(sum.balance, true)} h</strong>
           </div>
         </div>
+        <MonthExtras
+          project={project}
+          month={sum}
+          year={ym.y}
+          vacationRemaining={yearOverview(state, project, ym.y, now).vacation.remaining}
+          complete={dateKey(new Date(ym.y, ym.m + 1, 0)) < today}
+        />
         <div className="chips summary-chips">
           <span className="chip static">{sum.workedDays} Arbeitstage</span>
           {Object.entries(sum.absenceCounts).map(([t, n]) => (

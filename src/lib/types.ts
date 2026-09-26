@@ -36,6 +36,14 @@ export interface Project {
   surcharges: SurchargeRule[];
   /** Ab diesem Tag werden fehlende Einträge angezeigt. */
   startDate: DateKey;
+  /** Urlaubsanspruch pro Kalenderjahr in Tagen (Standard 30). */
+  vacationDaysPerYear?: number;
+  /** Verfügbarer Resturlaub im Jahr des Erfassungsbeginns (Standard: voller Jahresanspruch). */
+  vacationAtStart?: number;
+  /** Stand des Überstundenkontos zum Erfassungsbeginn in Stunden (auch negativ). */
+  overtimeAtStartHours?: number;
+  /** Zuschlag in % auf positive Monatsüberstunden, gutgeschrieben am Monatsende. */
+  overtimeSurchargePercent?: number;
   archived?: boolean;
 }
 

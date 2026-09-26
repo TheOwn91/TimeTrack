@@ -5,6 +5,7 @@ import { STATES } from '../lib/holidays';
 import { InstallCard } from './InstallCard';
 import { NotifyCard } from './NotifyCard';
 import { NumberField } from './NumberField';
+import { vacationPerYear } from '../lib/year';
 import { PROJECT_COLORS, newProject, useStore, validateState } from '../lib/store';
 import { WEEKDAYS_SHORT, dateKey, uid } from '../lib/time';
 import type { Project, SurchargeKind, SurchargeRule, Weekday } from '../lib/types';
@@ -151,6 +152,50 @@ function ProjectForm({ project }: { project: Project }) {
         <input type="checkbox" checked={project.autoBreak} onChange={(e) => set((p) => (p.autoBreak = e.target.checked))} />
         Gesetzliche Mindestpause automatisch abziehen (&gt; 6 h: 30 min, &gt; 9 h: 45 min)
       </label>
+
+      <h3>Urlaub &amp; Überstunden</h3>
+      <div className="grid-2">
+        <label>
+          Urlaubstage pro Jahr
+          <NumberField
+            value={vacationPerYear(project)}
+            decimals={1}
+            max={366}
+            onChange={(v) => set((p) => (p.vacationDaysPerYear = v))}
+          />
+        </label>
+        <label>
+          Resturlaub bei Erfassungsbeginn
+          <NumberField
+            value={project.vacationAtStart ?? vacationPerYear(project)}
+            decimals={1}
+            max={366}
+            onChange={(v) => set((p) => (p.vacationAtStart = v))}
+          />
+        </label>
+        <label>
+          Überstunden bei Erfassungsbeginn (h)
+          <NumberField
+            value={project.overtimeAtStartHours ?? 0}
+            decimals={2}
+            min={-10000}
+            onChange={(v) => set((p) => (p.overtimeAtStartHours = v))}
+          />
+        </label>
+        <label>
+          Zuschlag auf Überstunden (%)
+          <NumberField
+            value={project.overtimeSurchargePercent ?? 0}
+            decimals={1}
+            max={1000}
+            onChange={(v) => set((p) => (p.overtimeSurchargePercent = v))}
+          />
+        </label>
+      </div>
+      <p className="muted small">
+        Der Zuschlag wird am Monatsende auf die Überstunden des Monats gutgeschrieben. Resturlaub und Überstunden werden
+        automatisch ins nächste Jahr übernommen. Minusstunden bei Erfassungsbeginn mit „-“ eingeben.
+      </p>
 
       <h3>Zulagen</h3>
       <p className="muted small">

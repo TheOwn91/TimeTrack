@@ -7,7 +7,9 @@ import { buildIndex, daySummary, monthSummary, sessionStats, untrackedDays } fro
 import { newProject, useNow, useStore } from '../lib/store';
 import { MONTHS, dateKey, fmtClock, fmtDate, fmtDuration, fmtMoney, fmtTime, uid } from '../lib/time';
 import type { AbsenceType, DateKey } from '../lib/types';
+import { yearOverview } from '../lib/year';
 import { DayEditor } from './DayEditor';
+import { MonthExtras } from './MonthExtras';
 import { ProjectPicker } from './ProjectPicker';
 
 const INSTALL_HINT_KEY = 'timetrack.installHintDismissed';
@@ -184,6 +186,13 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
             <strong>{fmtDuration(month.balance, true)} h</strong>
           </div>
         </div>
+        <MonthExtras
+          project={project}
+          month={month}
+          year={d.getFullYear()}
+          vacationRemaining={yearOverview(state, project, d.getFullYear(), now).vacation.remaining}
+          complete={false}
+        />
         {month.credit > 0 && (
           <p className="muted small">Davon {fmtDuration(month.credit)} h Gutschrift (Urlaub, Krank …)</p>
         )}

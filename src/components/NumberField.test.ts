@@ -12,5 +12,10 @@ describe('parseDecimal', () => {
     expect(parseDecimal('')).toBeNull();
     expect(parseDecimal(',')).toBeNull();
     expect(parseDecimal('1,2,3')).toBeNull();
+    expect(parseDecimal('-3')).toBeNull();
+  });
+  it('erlaubt negative Werte nur auf Wunsch', () => {
+    expect(parseDecimal('-3,5', true)).toBe(-3.5);
+    expect(parseDecimal('-', true)).toBeNull();
   });
 });

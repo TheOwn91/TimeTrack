@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { Home } from './components/Home';
 import { MonthView } from './components/MonthView';
 import { Projects } from './components/Projects';
+import { YearView } from './components/YearView';
 import { DEMO, demoState } from './lib/demo';
 import { syncRunningStatus } from './lib/status';
 import { useStore } from './lib/store';
 
-type Tab = 'home' | 'month' | 'projects';
+type Tab = 'home' | 'month' | 'year' | 'projects';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'home', label: 'Start', icon: '⏱' },
   { id: 'month', label: 'Monat', icon: '📅' },
+  { id: 'year', label: 'Jahr', icon: '📊' },
   { id: 'projects', label: 'Arbeitgeber', icon: '🏢' },
 ];
 
@@ -57,6 +59,7 @@ export function App() {
       <main>
         {tab === 'home' && <Home onOpenProjects={() => setTab('projects')} />}
         {tab === 'month' && <MonthView />}
+        {tab === 'year' && <YearView />}
         {tab === 'projects' && <Projects />}
       </main>
       {notice && (
