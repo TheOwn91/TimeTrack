@@ -176,7 +176,7 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
           complete={false}
         />
         {month.credit > 0 && (
-          <p className="muted small">Davon {hours(month.credit)} h Gutschrift (Urlaub, Krank, Kurzarbeit …)</p>
+          <p className="muted small">Davon {hours(month.credit)} h Gutschrift (Urlaub, Krank …)</p>
         )}
         <h3>Zulagen</h3>
         {month.surcharges.length === 0 ? (

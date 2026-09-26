@@ -109,6 +109,13 @@ export function buildMonthReport(state: AppState, project: Project, year: number
     ['Soll', `${fmtDuration(sum.target)} h`, `${fmtHoursDecimal(sum.target)} h`],
     ['Saldo (Über-/Minusstunden)', `${fmtDuration(sum.balance, true)} h`, `${fmtHoursDecimal(sum.balance)} h`],
   ];
+  const { fromAccount, uncovered } = sum.shortTime;
+  if (fromAccount + uncovered > 0) {
+    const taken = fromAccount ? -fromAccount : 0; // kein „-0“
+    summaryRows.push(['Kurzarbeit vom Stundenkonto', `${fmtDuration(taken)} h`, `${fmtHoursDecimal(taken)} h`]);
+    if (uncovered > 0)
+      summaryRows.push(['Kurzarbeit ohne Soll (Konto leer)', `${fmtDuration(uncovered)} h`, `${fmtHoursDecimal(uncovered)} h`]);
+  }
   const overview = yearOverview(state, project, year, now);
   const account = overview.overtime.months[month0];
   const pct = sum.endTerms.overtimeSurchargePercent ?? 0;

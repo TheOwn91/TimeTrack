@@ -69,7 +69,7 @@ function computeYear(state: AppState, project: Project, year: number, now: numbe
   for (let m = 0; m < 12; m++) {
     const ym = `${year}-${String(m + 1).padStart(2, '0')}`;
     const inactive = ym < startMonth || `${ym}-01` > today;
-    const summary = monthSummary(state, project, year, m, now);
+    const summary = monthSummary(state, project, year, m, now, total);
     const balance = inactive ? 0 : summary.balance;
     const complete = lastDayOfMonth(year, m) < today;
     // Satz, der zum Monatsende gilt
@@ -105,6 +105,13 @@ function computeYear(state: AppState, project: Project, year: number, now: numbe
       total,
     },
   };
+}
+
+/** Stand des Stundenkontos zu Beginn eines Monats (Minuten, inkl. gutgeschriebener Zuschläge). */
+export function accountBeforeMonth(state: AppState, project: Project, year: number, month0: number, now = Date.now()): number {
+  const y = yearOverview(state, project, year, now);
+  if (y.beforeStart) return (project.overtimeAtStartHours ?? 0) * 60;
+  return month0 === 0 ? y.overtime.carryIn : y.overtime.months[month0 - 1].total;
 }
 
 /**
