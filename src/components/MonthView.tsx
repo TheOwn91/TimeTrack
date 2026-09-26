@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ABSENCE_TYPES } from '../lib/absences';
 import { monthSummary } from '../lib/calc';
 import { notify } from '../lib/demo';
-import { useNow, useStore } from '../lib/store';
+import { useHours, useNow, useStore } from '../lib/store';
 import { MONTHS, WEEKDAYS_SHORT, dateKey, fmtDuration, fmtMoney, fmtTime, parseDateKey } from '../lib/time';
 import type { DateKey } from '../lib/types';
 import { yearOverview } from '../lib/year';
@@ -12,6 +12,7 @@ import { ProjectPicker } from './ProjectPicker';
 
 export function MonthView() {
   const { state, update } = useStore();
+  const hours = useHours();
   const running = state.sessions.some((s) => s.end === undefined);
   const now = useNow(true, running ? 1000 : 30_000);
   const [ym, setYm] = useState(() => {
@@ -59,15 +60,15 @@ export function MonthView() {
         <div className="stats">
           <div className="stat">
             <span className="muted">Ist</span>
-            <strong>{fmtDuration(sum.worked + sum.credit)} h</strong>
+            <strong>{hours(sum.worked + sum.credit)} h</strong>
           </div>
           <div className="stat">
             <span className="muted">Soll</span>
-            <strong>{fmtDuration(sum.target)} h</strong>
+            <strong>{hours(sum.target)} h</strong>
           </div>
           <div className={`stat ${sum.balance < 0 ? 'neg' : 'pos'}`}>
             <span className="muted">Saldo</span>
-            <strong>{fmtDuration(sum.balance, true)} h</strong>
+            <strong>{hours(sum.balance, true)} h</strong>
           </div>
         </div>
         <MonthExtras
@@ -95,7 +96,7 @@ export function MonthView() {
               .map((s) => (
                 <li key={s.rule.id}>
                   <span>{s.rule.name}</span>
-                  <span>{fmtDuration(s.minutes)} h</span>
+                  <span>{hours(s.minutes)} h</span>
                   {sum.hasRate && <strong>{fmtMoney(s.amount)}</strong>}
                 </li>
               ))}

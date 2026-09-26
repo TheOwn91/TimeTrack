@@ -68,6 +68,17 @@ export function fmtDuration(minutes: number, withSign = false): string {
   return `${sign}${Math.floor(abs / 60)}:${pad(abs % 60)}`;
 }
 
+/**
+ * Summen von Stunden: als „156:44“ oder – wenn in den Einstellungen gewählt – dezimal „156,73“.
+ * Negative Werte mit Vorzeichen, `withSign` zeigt auch „+“.
+ */
+export function fmtHours(minutes: number, decimal: boolean, withSign = false): string {
+  if (!decimal) return fmtDuration(minutes, withSign);
+  const h = Math.round(minutes / 0.6) / 100; // auf 0,01 h gerundet
+  const sign = h < 0 ? '−' : withSign && h > 0 ? '+' : '';
+  return sign + Math.abs(h).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 /** Minuten als Dezimalstunden "7,08". */
 export function fmtHoursDecimal(minutes: number): string {
   return (minutes / 60).toLocaleString('de-DE', {

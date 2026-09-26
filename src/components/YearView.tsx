@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNow, useStore } from '../lib/store';
+import { useHours, useNow, useStore } from '../lib/store';
 import { termsAt } from '../lib/terms';
-import { MONTHS, dateKey, fmtDuration } from '../lib/time';
+import { MONTHS, dateKey } from '../lib/time';
 import { yearOverview } from '../lib/year';
 import { ProjectPicker } from './ProjectPicker';
 
@@ -9,6 +9,7 @@ const fmtDays = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits
 
 export function YearView() {
   const { state, update } = useStore();
+  const hours = useHours();
   const running = state.sessions.some((s) => s.end === undefined);
   const now = useNow(true, running ? 5000 : 60_000);
   const [year, setYear] = useState(() => new Date().getFullYear());
@@ -93,20 +94,20 @@ export function YearView() {
             <div className="stats">
               <div className="stat">
                 <span className="muted">Übertrag {year - 1}</span>
-                <strong>{fmtDuration(o.carryIn, true)} h</strong>
+                <strong>{hours(o.carryIn, true)} h</strong>
               </div>
               <div className="stat">
                 <span className="muted">Zuschläge</span>
-                <strong>{fmtDuration(o.surcharge, true)} h</strong>
+                <strong>{hours(o.surcharge, true)} h</strong>
               </div>
               <div className={`stat ${o.total < 0 ? 'neg' : 'pos'}`}>
                 <span className="muted">{pastYear ? `Übertrag ${year + 1}` : 'Stand'}</span>
-                <strong>{fmtDuration(o.total, true)} h</strong>
+                <strong>{hours(o.total, true)} h</strong>
               </div>
             </div>
             {o.pendingSurcharge > 0 && (
               <p className="muted small">
-                Voraussichtlich {fmtDuration(o.pendingSurcharge, true)} h Zuschlag ({pct} %) für den laufenden Monat – wird am
+                Voraussichtlich {hours(o.pendingSurcharge, true)} h Zuschlag ({pct} %) für den laufenden Monat – wird am
                 Monatsende gutgeschrieben.
               </p>
             )}
@@ -128,11 +129,11 @@ export function YearView() {
                     </>
                   ) : (
                     <>
-                      <span className={m.balance < 0 ? 'neg' : ''}>{fmtDuration(m.balance, true)}</span>
+                      <span className={m.balance < 0 ? 'neg' : ''}>{hours(m.balance, true)}</span>
                       <span className={m.complete ? '' : 'muted'}>
-                        {m.surcharge > 0 ? `${fmtDuration(m.surcharge, true)}${m.complete ? '' : '*'}` : '–'}
+                        {m.surcharge > 0 ? `${hours(m.surcharge, true)}${m.complete ? '' : '*'}` : '–'}
                       </span>
-                      <strong className={m.total < 0 ? 'neg' : ''}>{fmtDuration(m.total, true)}</strong>
+                      <strong className={m.total < 0 ? 'neg' : ''}>{hours(m.total, true)}</strong>
                     </>
                   )}
                 </div>

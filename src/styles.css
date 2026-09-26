@@ -1246,3 +1246,9 @@ html {
 .hidden-option p {
   margin: 0;
 }
+.delete-confirm {
+  margin-top: 1rem;
+}
+.delete-confirm strong {
+  color: var(--danger);
+}

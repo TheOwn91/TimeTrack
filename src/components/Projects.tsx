@@ -8,6 +8,8 @@ import { addRulePercent, fmtWorkdays } from '../lib/terms';
 import { dateKey, uid } from '../lib/time';
 import type { Project, SurchargeKind, SurchargeRule } from '../lib/types';
 import { vacationPerYear } from '../lib/year';
+import { DeleteAllData } from './DeleteAllData';
+import { DisplayCard } from './DisplayCard';
 import { InstallCard } from './InstallCard';
 import { NotifyCard } from './NotifyCard';
 import { NumberField } from './NumberField';
@@ -277,6 +279,8 @@ export function Projects({ onShowWhatsNew, onNewEmployer }: { onShowWhatsNew: ()
         </section>
       ))}
 
+      <DisplayCard />
+
       <InstallCard />
 
       <NotifyCard />
@@ -307,6 +311,7 @@ export function Projects({ onShowWhatsNew, onNewEmployer }: { onShowWhatsNew: ()
             }}
           />
         </div>
+        <DeleteAllData onExportBackup={exportBackup} />
       </section>
     </div>
   );

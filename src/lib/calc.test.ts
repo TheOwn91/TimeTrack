@@ -161,10 +161,11 @@ describe('Monat und fehlende Tage', () => {
     const sum = monthSummary(st, project, 2026, 8, combine('2026-09-04', '20:00'));
     // 1.9.: 10 h brutto − 45 min gesetzliche Pause = 9:15
     expect(sum.worked).toBe(555);
-    expect(sum.credit).toBe(480);
-    // Soll: 1.9., 2.9., 4.9. (3.9. Kurzarbeit ohne Soll)
-    expect(sum.target).toBe(3 * 480);
-    expect(sum.balance).toBe(555 + 480 - 1440);
+    // Urlaub (2.9.) und Kurzarbeit (3.9.) schreiben das Tagessoll gut
+    expect(sum.credit).toBe(2 * 480);
+    // Soll: 1.–4.9.; Überstundenausgleich (4.9.) geht vom Konto ab
+    expect(sum.target).toBe(4 * 480);
+    expect(sum.balance).toBe(555 + 960 - 1920);
     expect(sum.absenceCounts).toEqual({ urlaub: 1, kurzarbeit: 1, ueberstunden: 1 });
   });
 

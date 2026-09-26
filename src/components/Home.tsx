@@ -5,7 +5,7 @@ import { sessionDay } from '../lib/shift';
 import { isStandalone } from '../lib/device';
 import { notifyEnabled, requestNotifyPermission } from '../lib/status';
 import { buildIndex, daySummary, monthSummary, sessionStats, untrackedDays } from '../lib/calc';
-import { useNow, useStore } from '../lib/store';
+import { useHours, useNow, useStore } from '../lib/store';
 import { MONTHS, dateKey, fmtClock, fmtDate, fmtDuration, fmtMoney, fmtTime, uid } from '../lib/time';
 import type { AbsenceType, DateKey } from '../lib/types';
 import { yearOverview } from '../lib/year';
@@ -19,6 +19,7 @@ const QUICK_ABSENCES: AbsenceType[] = ['urlaub', 'krank', 'ueberstunden', 'kurza
 
 export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => void; onStartSetup: () => void }) {
   const { state, update } = useStore();
+  const hours = useHours();
   const active = state.sessions.find((s) => s.end === undefined);
   const now = useNow(true, active ? 1000 : 30_000);
   const [editDate, setEditDate] = useState<DateKey | null>(null);
@@ -157,15 +158,15 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
         <div className="stats">
           <div className="stat">
             <span className="muted">Ist</span>
-            <strong>{fmtDuration(month.worked + month.credit)} h</strong>
+            <strong>{hours(month.worked + month.credit)} h</strong>
           </div>
           <div className="stat">
             <span className="muted">Soll bis heute</span>
-            <strong>{fmtDuration(month.target)} h</strong>
+            <strong>{hours(month.target)} h</strong>
           </div>
           <div className={`stat ${month.balance < 0 ? 'neg' : 'pos'}`}>
             <span className="muted">Saldo</span>
-            <strong>{fmtDuration(month.balance, true)} h</strong>
+            <strong>{hours(month.balance, true)} h</strong>
           </div>
         </div>
         <MonthExtras
@@ -175,7 +176,7 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
           complete={false}
         />
         {month.credit > 0 && (
-          <p className="muted small">Davon {fmtDuration(month.credit)} h Gutschrift (Urlaub, Krank …)</p>
+          <p className="muted small">Davon {hours(month.credit)} h Gutschrift (Urlaub, Krank, Kurzarbeit …)</p>
         )}
         <h3>Zulagen</h3>
         {month.surcharges.length === 0 ? (
@@ -187,7 +188,7 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
                 <span>
                   {s.rule.name} <span className="muted">({s.rule.percent} %)</span>
                 </span>
-                <span>{fmtDuration(s.minutes)} h</span>
+                <span>{hours(s.minutes)} h</span>
                 {month.hasRate && <strong>{fmtMoney(s.amount)}</strong>}
               </li>
             ))}

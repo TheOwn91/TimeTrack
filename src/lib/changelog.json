@@ -1,11 +1,21 @@
 [
   {
+    "version": "0.9.0",
+    "date": "26.09.2026",
+    "changes": [
+      "Summen (Monat, Jahr) wahlweise als Dezimalzahl, z. B. 156,73 h – unter „Einstellungen → Anzeige“",
+      "„Alle Daten löschen“ unter „Einstellungen → Datensicherung“",
+      "Kurzarbeit wird jetzt wie Urlaub mit dem Tagessoll gutgeschrieben"
+    ]
+  },
+  {
     "version": "0.8.0",
     "date": "26.09.2026",
     "changes": [
       "Für Hahn Automation: Nachtschicht dem Folgetag zuordnen (Anstempeln Sonntag → steht beim Montag); Zulagen weiter nach echter Uhrzeit",
       "Monatsansicht und PDF kennzeichnen einen Schichtbeginn am Vortag mit „−1“"
-    ]
+    ],
+    "commit": "f0c2c4ecf419d6f646d5b52606d733f8a4efa9d7"
   },
   {
     "version": "0.7.1",

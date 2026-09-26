@@ -105,8 +105,15 @@ export interface Absence {
   note?: string;
 }
 
+/** App-weite Anzeige-Einstellungen (werden mit der Datensicherung gespeichert). */
+export interface AppSettings {
+  /** Summen (Monat, Jahr) als Dezimalstunden anzeigen, z. B. 156,73 h statt 156:44 h. */
+  decimalHours?: boolean;
+}
+
 export interface AppState {
   version: 1;
+  settings?: AppSettings;
   projects: Project[];
   sessions: Session[];
   absences: Absence[];
