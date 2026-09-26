@@ -130,7 +130,7 @@ function ProjectForm({ project }: { project: Project }) {
       <WeekdayToggle value={project.workdays} onChange={(v) => set((p) => (p.workdays = v))} />
       <div className="grid-2">
         <label>
-          Feiertage (Bundesland)
+          Feiertage
           <select value={project.state} onChange={(e) => set((p) => (p.state = e.target.value))}>
             {Object.entries(STATES).map(([k, v]) => (
               <option key={k} value={k}>
@@ -154,47 +154,51 @@ function ProjectForm({ project }: { project: Project }) {
       </label>
 
       <h3>Urlaub &amp; Überstunden</h3>
-      <div className="grid-2">
+      <div className="field-list">
         <label>
-          Urlaubstage pro Jahr
+          <span>Urlaubstage pro Jahr</span>
           <NumberField
             value={vacationPerYear(project)}
             decimals={1}
             max={366}
             onChange={(v) => set((p) => (p.vacationDaysPerYear = v))}
           />
+          <span className="unit">Tage</span>
         </label>
         <label>
-          Resturlaub bei Erfassungsbeginn
+          <span>Resturlaub zu Beginn</span>
           <NumberField
             value={project.vacationAtStart ?? vacationPerYear(project)}
             decimals={1}
             max={366}
             onChange={(v) => set((p) => (p.vacationAtStart = v))}
           />
+          <span className="unit">Tage</span>
         </label>
         <label>
-          Überstunden bei Erfassungsbeginn (h)
+          <span>Überstunden zu Beginn</span>
           <NumberField
             value={project.overtimeAtStartHours ?? 0}
             decimals={2}
             min={-10000}
             onChange={(v) => set((p) => (p.overtimeAtStartHours = v))}
           />
+          <span className="unit">h</span>
         </label>
         <label>
-          Zuschlag auf Überstunden (%)
+          <span>Zuschlag auf Überstunden</span>
           <NumberField
             value={project.overtimeSurchargePercent ?? 0}
             decimals={1}
             max={1000}
             onChange={(v) => set((p) => (p.overtimeSurchargePercent = v))}
           />
+          <span className="unit">%</span>
         </label>
       </div>
       <p className="muted small">
-        Der Zuschlag wird am Monatsende auf die Überstunden des Monats gutgeschrieben. Resturlaub und Überstunden werden
-        automatisch ins nächste Jahr übernommen. Minusstunden bei Erfassungsbeginn mit „-“ eingeben.
+        „Zu Beginn“ = Stand am Tag „Erfassung ab“ (Minusstunden mit „-“ eingeben). Der Zuschlag wird am Monatsende auf
+        die Überstunden des Monats gutgeschrieben. Resturlaub und Überstunden gehen automatisch ins nächste Jahr.
       </p>
 
       <h3>Zulagen</h3>
