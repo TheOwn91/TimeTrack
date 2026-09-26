@@ -1,40 +1,19 @@
 import { DEMO } from './demo';
+import releases from './changelog.json';
 
 export interface Release {
   version: string;
   date: string;
   changes: string[];
+  commit?: string;
 }
 
-/** Neueste Version zuerst. Bei jedem Update hier einen Eintrag ergänzen. */
-export const CHANGELOG: Release[] = [
-  {
-    version: '0.4.0',
-    date: '26.09.2026',
-    changes: [
-      'Neue Seite „Jahr“: Urlaub (Anspruch, Übertrag, genommen, geplant, Rest) und Überstundenkonto Monat für Monat',
-      'Resturlaub und Überstunden werden automatisch ins nächste Jahr übernommen',
-      'Zuschlag auf Überstunden – wird am Monatsende gutgeschrieben',
-      'Urlaubstage und Resturlaub in der Monatsübersicht',
-      'Diese Meldung nach Updates (abschaltbar)',
-    ],
-  },
-  {
-    version: '0.3.0',
-    date: '26.09.2026',
-    changes: ['Symbol in der Statusleiste, solange die Zeit läuft', 'Zahlenfelder akzeptieren Komma („22,50“)', 'Besser lesbarer Dark Mode'],
-  },
-  {
-    version: '0.2.0',
-    date: '26.09.2026',
-    changes: ['Läuft offline als App auf dem Handy', 'PDF-Bericht und Datensicherung über das Teilen-Menü'],
-  },
-  {
-    version: '0.1.0',
-    date: '25.09.2026',
-    changes: ['Erste Version: Zeiterfassung, Monatsansicht, Zulagen, PDF-Monatsbericht'],
-  },
-];
+/**
+ * Neueste Version zuerst. Bei jedem Update in `changelog.json` oben einen Eintrag ergänzen.
+ * `commit` nur bei Versionen, die nachträglich getaggt wurden – sonst taggt der Release-Workflow
+ * den Stand, mit dem die Version auf `main` ankommt.
+ */
+export const CHANGELOG: Release[] = releases;
 
 export const APP_VERSION = CHANGELOG[0].version;
 

@@ -28,8 +28,10 @@ Offline-fähige PWA zur Arbeitszeiterfassung (React + TypeScript + Vite). UI-Spr
 
 ## Versionen / „Was ist neu?“
 
-Bei jeder für Nutzer sichtbaren Änderung in `src/lib/changelog.ts` oben einen Eintrag ergänzen
+Bei jeder für Nutzer sichtbaren Änderung in `src/lib/changelog.json` oben einen Eintrag ergänzen
 (neue Versionsnummer, Datum, Änderungen in einfachen Worten) und `version` in `package.json` angleichen.
 Während der Entwicklung bleibt die Version bei 0.x (neue Funktionen: 0.x → 0.x+1, Korrekturen: 0.x.y → 0.x.y+1);
 1.0.0 erst nach Absprache mit dem Nutzer zum offiziellen Start.
 Nach einem Update zeigt die App diese Einträge einmalig beim Start (abschaltbar).
+Sobald die Version auf `main` ankommt, legt `.github/workflows/release.yml` Tag `vX.Y.Z` und
+GitHub-Release an (0.x als Pre-release). Aus dieser Umgebung lassen sich keine Tags pushen.

@@ -1,0 +1,40 @@
+[
+  {
+    "version": "0.4.0",
+    "date": "26.09.2026",
+    "changes": [
+      "Neue Seite „Jahr“: Urlaub (Anspruch, Übertrag, genommen, geplant, Rest) und Überstundenkonto Monat für Monat",
+      "Resturlaub und Überstunden werden automatisch ins nächste Jahr übernommen",
+      "Zuschlag auf Überstunden – wird am Monatsende gutgeschrieben",
+      "Urlaubstage und Resturlaub in der Monatsübersicht",
+      "Diese Meldung nach Updates (abschaltbar)"
+    ]
+  },
+  {
+    "version": "0.3.0",
+    "date": "26.09.2026",
+    "commit": "e53c00d476e65fe16972ee4ffc4a85ab389b7798",
+    "changes": [
+      "Symbol in der Statusleiste, solange die Zeit läuft",
+      "Zahlenfelder akzeptieren Komma („22,50“)",
+      "Besser lesbarer Dark Mode"
+    ]
+  },
+  {
+    "version": "0.2.0",
+    "date": "26.09.2026",
+    "commit": "2c054992a908527946670aecd598675d231cbee7",
+    "changes": [
+      "Läuft offline als App auf dem Handy",
+      "PDF-Bericht und Datensicherung über das Teilen-Menü"
+    ]
+  },
+  {
+    "version": "0.1.0",
+    "date": "25.09.2026",
+    "commit": "b653f407a3a64253b6c914dd9abe536e296d22d1",
+    "changes": [
+      "Erste Version: Zeiterfassung, Monatsansicht, Zulagen, PDF-Monatsbericht"
+    ]
+  }
+]
