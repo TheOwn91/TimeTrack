@@ -15,7 +15,8 @@
       "Stundenlohn, Soll pro Tag, Arbeitstage und Zuschläge mit „gültig ab“ – vergangene Monate bleiben unverändert",
       "Verlauf der Änderungen unter „Einstellungen → Lohn & Arbeitszeit“",
       "PDF-Bericht nennt Änderungen innerhalb des Monats"
-    ]
+    ],
+    "commit": "5b8b3cf42f4bc06b3b1efc5e7f652c18049d480b"
   },
   {
     "version": "0.5.0",
@@ -25,7 +26,8 @@
       "Automatische Updates lassen sich ein- und ausschalten",
       "„Auf Updates prüfen“ und „Jetzt aktualisieren“ in den Einstellungen",
       "Nach einem Update zeigt die App, was neu ist"
-    ]
+    ],
+    "commit": "9ea42e1a5a3c2d556f9d6b52950343376d1cff35"
   },
   {
     "version": "0.4.0",
@@ -36,7 +38,8 @@
       "Zuschlag auf Überstunden – wird am Monatsende gutgeschrieben",
       "Urlaubstage und Resturlaub in der Monatsübersicht",
       "Diese Meldung nach Updates (abschaltbar)"
-    ]
+    ],
+    "commit": "a2cf88c127c3a8d56ef50a4bf9c442f3f690ceee"
   },
   {
     "version": "0.3.0",
