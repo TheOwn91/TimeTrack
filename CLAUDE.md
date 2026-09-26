@@ -25,3 +25,9 @@ Offline-fähige PWA zur Arbeitszeiterfassung (React + TypeScript + Vite). UI-Spr
 
 `npm run build:demo -- <ziel.html>` erzeugt eine einzelne HTML-Datei mit Beispieldaten
 (`src/lib/demo.ts`). In der Demo gibt es keine Downloads, Dialoge oder Service Worker.
+
+## Versionen / „Was ist neu?“
+
+Bei jeder für Nutzer sichtbaren Änderung in `src/lib/changelog.ts` oben einen Eintrag ergänzen
+(neue Versionsnummer, Datum, Änderungen in einfachen Worten) und `version` in `package.json` angleichen.
+Nach einem Update zeigt die App diese Einträge einmalig beim Start (abschaltbar).

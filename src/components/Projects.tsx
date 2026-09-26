@@ -4,6 +4,7 @@ import { shareOrDownload } from '../lib/device';
 import { STATES } from '../lib/holidays';
 import { InstallCard } from './InstallCard';
 import { NotifyCard } from './NotifyCard';
+import { VersionCard } from './VersionCard';
 import { NumberField } from './NumberField';
 import { vacationPerYear } from '../lib/year';
 import { PROJECT_COLORS, newProject, useStore, validateState } from '../lib/store';
@@ -247,7 +248,7 @@ function ProjectForm({ project }: { project: Project }) {
   );
 }
 
-export function Projects() {
+export function Projects({ onShowWhatsNew }: { onShowWhatsNew: () => void }) {
   const { state, update, replace } = useStore();
   const [openId, setOpenId] = useState<string | null>(state.selectedProjectId ?? null);
   const [name, setName] = useState('');
@@ -308,6 +309,8 @@ export function Projects() {
       <InstallCard />
 
       <NotifyCard />
+
+      <VersionCard onShowWhatsNew={onShowWhatsNew} />
 
       <section className="card">
         <h2>Datensicherung</h2>

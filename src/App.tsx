@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { Home } from './components/Home';
 import { MonthView } from './components/MonthView';
 import { Projects } from './components/Projects';
+import { WhatsNew } from './components/WhatsNew';
 import { YearView } from './components/YearView';
+import { CHANGELOG, pendingReleaseNotes, type Release } from './lib/changelog';
 import { DEMO, demoState } from './lib/demo';
 import { syncRunningStatus } from './lib/status';
 import { useStore } from './lib/store';
@@ -19,6 +21,11 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 export function App() {
   const [tab, setTab] = useState<Tab>('home');
   const [notice, setNotice] = useState<string | null>(null);
+  // „Was ist neu?“ nach einem Update (einmal beim Start ermittelt)
+  const [whatsNew, setWhatsNew] = useState<{ releases: Release[]; afterUpdate: boolean } | null>(() => {
+    const releases = pendingReleaseNotes();
+    return releases.length ? { releases, afterUpdate: true } : null;
+  });
   const { state, replace } = useStore();
 
   // Benachrichtigung und Badge folgen dem Timer (auch nach Neustart der App)
@@ -60,8 +67,11 @@ export function App() {
         {tab === 'home' && <Home onOpenProjects={() => setTab('projects')} />}
         {tab === 'month' && <MonthView />}
         {tab === 'year' && <YearView />}
-        {tab === 'projects' && <Projects />}
+        {tab === 'projects' && <Projects onShowWhatsNew={() => setWhatsNew({ releases: CHANGELOG, afterUpdate: false })} />}
       </main>
+      {whatsNew && (
+        <WhatsNew releases={whatsNew.releases} afterUpdate={whatsNew.afterUpdate} onClose={() => setWhatsNew(null)} />
+      )}
       {notice && (
         <div className="toast" role="status" onClick={() => setNotice(null)}>
           {notice}
