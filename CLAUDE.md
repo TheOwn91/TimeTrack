@@ -8,6 +8,8 @@ Offline-fähige PWA zur Arbeitszeiterfassung (React + TypeScript + Vite). UI-Spr
 - **UI-Änderungen immer in hell UND dunkel ansehen** (Screenshots im Handy-Viewport, z. B. Playwright
   mit `colorScheme: 'dark'` und zusätzlich `data-theme="dark"` am `<html>`-Element bei hellem System).
   Auf Kontrast achten: Texte, Chips, Tags, Rahmen, Modals, Hervorhebungen.
+- Auch bei **320 px Breite** prüfen: `document.documentElement.scrollWidth` darf nie größer als die
+  Bildschirmbreite sein (sonst zoomt das Handy heraus und Fenster ragen über den Rand).
 - Die Demo als Artifact immer **mit dem Grundgerüst der Artifact-Seite** testen: Es setzt am `body`
   eine eigene Schrift und Farbe (`font:14px …; color:#141413; background:#faf9f5`). Die App muss Farbe
   und Schrift deshalb selbst am `body` setzen; nur `:root` reicht nicht.

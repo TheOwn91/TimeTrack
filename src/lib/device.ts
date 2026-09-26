@@ -40,18 +40,6 @@ export async function shareOrDownload(blob: Blob, fileName: string): Promise<voi
   setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
 }
 
-export function registerServiceWorker() {
-  if (!import.meta.env.PROD || DEMO || !('serviceWorker' in navigator)) return;
-  const hadController = !!navigator.serviceWorker.controller;
-  // Nach einem Update einmal neu laden, damit alle Dateien zur neuen Version passen
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (hadController) window.location.reload();
-  });
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => undefined);
-  });
-}
-
 /** Bittet den Browser, die lokalen Daten nicht automatisch zu löschen. */
 export function requestPersistentStorage() {
   navigator.storage?.persist?.().catch(() => undefined);

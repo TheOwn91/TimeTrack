@@ -1,6 +1,6 @@
 # TimeTrack – Arbeitszeiterfassung
 
-App zur Erfassung von Arbeitszeiten, die **lokal auf dem Handy** läuft (Android und iPhone). Sie wird einmal im Browser geöffnet und auf dem Homescreen installiert – danach startet sie wie eine normale App und funktioniert **komplett offline**. Alle Daten bleiben auf dem Gerät; über „Arbeitgeber → Datensicherung“ lassen sie sich als Datei sichern und wiederherstellen.
+App zur Erfassung von Arbeitszeiten, die **lokal auf dem Handy** läuft (Android und iPhone). Sie wird einmal im Browser geöffnet und auf dem Homescreen installiert – danach startet sie wie eine normale App und funktioniert **komplett offline**. Alle Daten bleiben auf dem Gerät; über „Einstellungen → Datensicherung“ lassen sie sich als Datei sichern und wiederherstellen.
 
 ## Auf dem Handy installieren
 
@@ -9,7 +9,7 @@ App zur Erfassung von Arbeitszeiten, die **lokal auf dem Handy** läuft (Android
    **Android:** im Chrome-Menü (⋮) auf *App installieren*.
 3. Fertig – ab jetzt vom Homescreen starten, Internet wird nicht mehr benötigt.
 
-Updates werden automatisch geladen, wenn das Handy beim Öffnen online ist.
+Updates werden automatisch geladen und beim Öffnen installiert. Unter „Einstellungen → App-Version & Updates“ lässt sich das abschalten; dann gibt es „Auf Updates prüfen“ und „Jetzt aktualisieren“. Nach jedem Update zeigt die App, was neu ist.
 Der PDF-Monatsbericht und die Datensicherung öffnen auf dem Handy das Teilen-Menü (in Dateien speichern, per Mail/Messenger senden).
 
 > Hinweis: Wird die App bzw. werden die Website-Daten im Browser gelöscht, sind auch die Zeiten weg. Deshalb regelmäßig eine Sicherung exportieren.
@@ -33,7 +33,7 @@ Einmalig nötig: im Repository unter *Settings → Pages → Source* „GitHub A
 - **Zulagen** minutengenau: Uhrzeit-Fenster (auch über Mitternacht, optional nur an bestimmten Wochentagen), Wochentage (z. B. Sonntag) und Feiertage – in Stunden und € (bei hinterlegtem Stundenlohn)
 - **„Was ist neu?“** nach Updates beim ersten Start der neuen Version, dauerhaft abschaltbar
 - **PDF-Monatsbericht** mit Tagesliste, Zusammenfassung, Zulagen und Unterschriftsfeldern
-- **Statusleiste**: Solange die Zeit läuft, zeigt die App eine Benachrichtigung („Zeit läuft seit 07:02“ bzw. „Pause seit …“) und eine Markierung am App-Symbol. Android: sofort; iPhone: ab iOS 16.4 in der installierten App. Abschaltbar unter „Arbeitgeber → Statusleiste“.
+- **Statusleiste**: Solange die Zeit läuft, zeigt die App eine Benachrichtigung („Zeit läuft seit 07:02“ bzw. „Pause seit …“) und eine Markierung am App-Symbol. Android: sofort; iPhone: ab iOS 16.4 in der installierten App. Abschaltbar unter „Einstellungen → Statusleiste“.
 
 ### Abwesenheits-Schlüssel
 

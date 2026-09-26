@@ -8,6 +8,7 @@ import { CHANGELOG, pendingReleaseNotes, type Release } from './lib/changelog';
 import { DEMO, demoState } from './lib/demo';
 import { syncRunningStatus } from './lib/status';
 import { useStore } from './lib/store';
+import { applyUpdate, consumeForcedReleaseNotes, getUpdateStatus, onUpdateStatus } from './lib/update';
 
 type Tab = 'home' | 'month' | 'year' | 'projects';
 
@@ -15,7 +16,7 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'home', label: 'Start', icon: '⏱' },
   { id: 'month', label: 'Monat', icon: '📅' },
   { id: 'year', label: 'Jahr', icon: '📊' },
-  { id: 'projects', label: 'Arbeitgeber', icon: '🏢' },
+  { id: 'projects', label: 'Einstellungen', icon: '⚙️' },
 ];
 
 export function App() {
@@ -23,10 +24,12 @@ export function App() {
   const [notice, setNotice] = useState<string | null>(null);
   // „Was ist neu?“ nach einem Update (einmal beim Start ermittelt)
   const [whatsNew, setWhatsNew] = useState<{ releases: Release[]; afterUpdate: boolean } | null>(() => {
-    const releases = pendingReleaseNotes();
+    const releases = pendingReleaseNotes(consumeForcedReleaseNotes());
     return releases.length ? { releases, afterUpdate: true } : null;
   });
   const { state, replace } = useStore();
+  const [update, setUpdate] = useState(getUpdateStatus);
+  useEffect(() => onUpdateStatus(setUpdate), []);
 
   // Benachrichtigung und Badge folgen dem Timer (auch nach Neustart der App)
   useEffect(() => {
@@ -63,6 +66,17 @@ export function App() {
           </div>
         )}
       </header>
+      {update.state === 'available' && (
+        <div className="update-bar" role="status">
+          <span>
+            Update{update.release ? ` auf ${update.release.version}` : ''} verfügbar
+          </span>
+          <button className="btn primary" onClick={() => void applyUpdate()}>
+            Jetzt aktualisieren
+          </button>
+        </div>
+      )}
+      {update.state === 'installing' && <div className="update-bar">Update wird installiert …</div>}
       <main>
         {tab === 'home' && <Home onOpenProjects={() => setTab('projects')} />}
         {tab === 'month' && <MonthView />}

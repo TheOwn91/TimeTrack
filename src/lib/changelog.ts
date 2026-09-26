@@ -64,7 +64,7 @@ export function releasesSince(lastSeen: string | null, changelog = CHANGELOG): R
  * Beim Start: Was ist seit dem letzten Start neu? Bei der allerersten Installation wird nichts
  * angezeigt, nur die Version gemerkt. In der Demo zählt der erste Besuch als Update.
  */
-export function pendingReleaseNotes(): Release[] {
+export function pendingReleaseNotes(force = false): Release[] {
   let lastSeen = read(SEEN_KEY);
   if (lastSeen === null) {
     if (!DEMO) {
@@ -75,7 +75,7 @@ export function pendingReleaseNotes(): Release[] {
   }
   const releases = releasesSince(lastSeen);
   if (!releases.length) return [];
-  if (!updateNotesEnabled()) {
+  if (!updateNotesEnabled() && !force) {
     markVersionSeen();
     return [];
   }

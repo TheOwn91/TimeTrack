@@ -140,7 +140,7 @@ export function YearView() {
             <p className="muted small">
               {pct > 0
                 ? `Zuschlag ${pct} % auf positive Monatsüberstunden${o.pendingSurcharge > 0 ? ', * = wird am Monatsende gutgeschrieben' : ''}. `
-                : 'Kein Zuschlag auf Überstunden eingestellt (unter „Arbeitgeber“ änderbar). '}
+                : 'Kein Zuschlag auf Überstunden eingestellt (unter „Einstellungen“ änderbar). '}
               {pastYear
                 ? `Der Stand wurde ins Jahr ${year + 1} übernommen.`
                 : `Der Stand zum Jahresende wird automatisch ins Jahr ${year + 1} übernommen.`}

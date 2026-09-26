@@ -71,7 +71,7 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
               Anlegen
             </button>
           </form>
-          <p className="muted small">Stundenlohn, Sollzeit und Zulagen kannst du danach unter „Arbeitgeber“ einstellen.</p>
+          <p className="muted small">Stundenlohn, Sollzeit und Zulagen kannst du danach unter „Einstellungen“ festlegen.</p>
         </div>
       </div>
     );
@@ -130,7 +130,7 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
             disabled={!!active}
             onChange={(id) => update((s) => void (s.selectedProjectId = id))}
           />
-          <button className="icon-btn" onClick={onOpenProjects} aria-label="Arbeitgeber verwalten" title="Arbeitgeber verwalten">
+          <button className="icon-btn" onClick={onOpenProjects} aria-label="Einstellungen" title="Einstellungen">
             ⚙
           </button>
         </div>

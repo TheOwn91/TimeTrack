@@ -24,14 +24,22 @@ function serviceWorker(): Plugin {
         hash.update(chunk.type === 'chunk' ? chunk.code : chunk.source);
       }
       const version = hash.digest('hex').slice(0, 12);
+      // Aktuelle Version für „Auf Updates prüfen“ (wird nie aus dem Cache geliefert)
+      const [latest] = JSON.parse(readFileSync('src/lib/changelog.json', 'utf8'));
+      this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify(latest) });
       this.emitFile({
         type: 'asset',
         fileName: 'sw.js',
         source: `const CACHE = 'timetrack-${version}';
 const FILES = ${JSON.stringify(files)};
 
+// Ein neuer Service Worker wartet, bis die App ihn aktiviert (automatisch oder per „Jetzt aktualisieren“)
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)));
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -44,7 +52,9 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+  const url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== self.location.origin) return;
+  if (url.pathname.endsWith('/version.json')) return; // immer aus dem Netz
   // Cache zuerst: startet sofort, auch ohne Netz. Updates kommen über einen neuen sw.js.
   const key = req.mode === 'navigate' ? './' : req;
   event.respondWith(caches.match(key, { ignoreSearch: true }).then((hit) => hit || fetch(req)));
