@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { ABSENCE_TYPES } from '../lib/absences';
+import { DEMO } from '../lib/demo';
 import { isStandalone } from '../lib/device';
+import { notifyEnabled, requestNotifyPermission } from '../lib/status';
 import { buildIndex, daySummary, monthSummary, sessionStats, untrackedDays } from '../lib/calc';
 import { newProject, useNow, useStore } from '../lib/store';
 import { MONTHS, dateKey, fmtClock, fmtDate, fmtDuration, fmtMoney, fmtTime, uid } from '../lib/time';
@@ -20,7 +22,7 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
   const [newName, setNewName] = useState('');
   const [hideInstall, setHideInstall] = useState(() => {
     try {
-      return isStandalone() || localStorage.getItem(INSTALL_HINT_KEY) === '1';
+      return DEMO || isStandalone() || localStorage.getItem(INSTALL_HINT_KEY) === '1';
     } catch {
       return true;
     }
@@ -80,10 +82,13 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
   const month = monthSummary(state, project, d.getFullYear(), d.getMonth(), now);
   const missing = untrackedDays(state, project, now);
 
-  const start = () =>
+  const start = () => {
     update((s) => {
       s.sessions.push({ id: uid(), projectId: project.id, start: Date.now(), pauses: [] });
     });
+    // Beim ersten Start fragen, ob die App eine „Zeit läuft“-Benachrichtigung zeigen darf
+    if (notifyEnabled()) void requestNotifyPermission();
+  };
   const togglePause = () =>
     update((s) => {
       const sess = s.sessions.find((x) => x.id === active!.id)!;

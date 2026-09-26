@@ -1,3 +1,5 @@
+import { DEMO, notify } from './demo';
+
 /** Läuft die App als installierte App (Homescreen)? */
 export function isStandalone(): boolean {
   return (
@@ -15,6 +17,10 @@ export function isIOS(): boolean {
  * sonst als Download speichern.
  */
 export async function shareOrDownload(blob: Blob, fileName: string): Promise<void> {
+  if (DEMO) {
+    notify('In der Demo sind Downloads gesperrt. In der installierten App wird die Datei gespeichert oder geteilt.');
+    return;
+  }
   const file = new File([blob], fileName, { type: blob.type });
   const touch = window.matchMedia?.('(pointer: coarse)').matches;
   if (touch && navigator.canShare?.({ files: [file] })) {
@@ -35,7 +41,7 @@ export async function shareOrDownload(blob: Blob, fileName: string): Promise<voi
 }
 
 export function registerServiceWorker() {
-  if (!import.meta.env.PROD || !('serviceWorker' in navigator)) return;
+  if (!import.meta.env.PROD || DEMO || !('serviceWorker' in navigator)) return;
   const hadController = !!navigator.serviceWorker.controller;
   // Nach einem Update einmal neu laden, damit alle Dateien zur neuen Version passen
   navigator.serviceWorker.addEventListener('controllerchange', () => {

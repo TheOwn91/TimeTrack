@@ -49,13 +49,37 @@ self.addEventListener('fetch', (event) => {
   const key = req.mode === 'navigate' ? './' : req;
   event.respondWith(caches.match(key, { ignoreSearch: true }).then((hit) => hit || fetch(req)));
 });
+
+// Tipp auf die „Zeit läuft“-Benachrichtigung öffnet die App (oder holt sie nach vorn)
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      const open = list.find((c) => 'focus' in c);
+      return open ? open.focus() : self.clients.openWindow('./');
+    }),
+  );
+});
 `,
       });
     },
   };
 }
 
-export default defineConfig({
-  base: './',
-  plugins: [react(), serviceWorker()],
-});
+const define = { __BUILD_TIME__: JSON.stringify(new Date().toISOString()) };
+
+export default defineConfig(({ mode }) =>
+  mode === 'demo'
+    ? {
+        define,
+        // Demo: alles in einer Datei, ohne Service Worker (für eingebettete Vorschau)
+        base: './',
+        plugins: [react()],
+        build: { outDir: 'dist-demo', assetsInlineLimit: 100_000_000, cssCodeSplit: false },
+      }
+    : {
+        define,
+        base: './',
+        plugins: [react(), serviceWorker()],
+      },
+);

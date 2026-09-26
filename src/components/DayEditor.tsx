@@ -1,5 +1,6 @@
 import { ABSENCE_ORDER, ABSENCE_TYPES } from '../lib/absences';
 import { buildIndex, daySummary } from '../lib/calc';
+import { ask } from '../lib/demo';
 import { useNow, useStore } from '../lib/store';
 import { MINUTE, combine, fmtDate, fmtDuration, fmtTime, uid } from '../lib/time';
 import type { AbsenceType, DateKey, Project, Session } from '../lib/types';
@@ -51,7 +52,7 @@ export function DayEditor({ project, date, onClose }: Props) {
   };
 
   const removeSession = (id: string) => {
-    if (!confirm('Buchung wirklich löschen?')) return;
+    if (!ask('Buchung wirklich löschen?')) return;
     update((d) => {
       d.sessions = d.sessions.filter((s) => s.id !== id);
     });

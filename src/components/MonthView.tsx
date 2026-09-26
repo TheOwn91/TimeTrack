@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ABSENCE_TYPES } from '../lib/absences';
 import { monthSummary } from '../lib/calc';
+import { notify } from '../lib/demo';
 import { useNow, useStore } from '../lib/store';
 import { MONTHS, WEEKDAYS_SHORT, dateKey, fmtDuration, fmtMoney, fmtTime, parseDateKey } from '../lib/time';
 import type { DateKey } from '../lib/types';
@@ -19,7 +20,7 @@ export function MonthView() {
   // PDF-Modul vorladen, damit der Export direkt im Klick passiert (nötig fürs Teilen-Menü auf iOS)
   const pdf = useRef<typeof import('../lib/pdf') | null>(null);
   useEffect(() => {
-    void import('../lib/pdf').then((m) => (pdf.current = m));
+    if (import.meta.env.MODE !== 'demo') void import('../lib/pdf').then((m) => (pdf.current = m));
   }, []);
 
   const projects = state.projects.filter((p) => !p.archived);
@@ -93,8 +94,12 @@ export function MonthView() {
           </ul>
         )}
         <button className="btn primary full" onClick={async () => {
-            const m = pdf.current ?? (pdf.current = await import('../lib/pdf'));
-            await m.exportMonthPdf(state, project, ym.y, ym.m);
+            if (import.meta.env.MODE === 'demo') {
+              notify('In der Demo ist der PDF-Download gesperrt. In der installierten App wird der Bericht gespeichert oder geteilt.');
+            } else {
+              const m = pdf.current ?? (pdf.current = await import('../lib/pdf'));
+              await m.exportMonthPdf(state, project, ym.y, ym.m);
+            }
           }}>
           ⬇ PDF-Monatsbericht exportieren
         </button>

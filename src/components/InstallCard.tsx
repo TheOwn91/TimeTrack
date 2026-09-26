@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { DEMO } from '../lib/demo';
 import { isIOS, isStandalone } from '../lib/device';
 
 interface InstallPromptEvent extends Event {
@@ -28,6 +29,18 @@ export function InstallCard() {
     listeners.add(l);
     return () => void listeners.delete(l);
   }, []);
+
+  if (DEMO) {
+    return (
+      <section className="card">
+        <h2>Demo</h2>
+        <p className="muted small">
+          Das ist eine Demo mit Beispieldaten. Deine Eingaben bleiben nur in diesem Browser. Die richtige App wird auf dem
+          Handy über „Zum Home-Bildschirm“ installiert und läuft dann offline.
+        </p>
+      </section>
+    );
+  }
 
   if (isStandalone()) {
     return (

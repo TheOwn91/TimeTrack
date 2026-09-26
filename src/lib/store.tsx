@@ -1,8 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { DEMO, demoState } from './demo';
 import { dateKey, uid } from './time';
 import type { AppState, Project, SurchargeRule } from './types';
 
-const STORAGE_KEY = 'timetrack.v1';
+const STORAGE_KEY = DEMO ? 'timetrack.demo.v1' : 'timetrack.v1';
 
 export const PROJECT_COLORS = ['#2563eb', '#16a34a', '#dc2626', '#9333ea', '#ea580c', '#0891b2', '#ca8a04', '#db2777'];
 
@@ -38,10 +39,10 @@ export function emptyState(): AppState {
 export function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return emptyState();
+    if (!raw) return DEMO ? demoState() : emptyState();
     return validateState(JSON.parse(raw));
   } catch {
-    return emptyState();
+    return DEMO ? demoState() : emptyState();
   }
 }
 
