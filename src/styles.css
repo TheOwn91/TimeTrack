@@ -1232,3 +1232,17 @@ html {
   flex-direction: column;
   gap: 0.1rem;
 }
+
+/* Versteckte Option (nur bestimmte Arbeitgeber) */
+.hidden-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: var(--off);
+}
+.hidden-option p {
+  margin: 0;
+}

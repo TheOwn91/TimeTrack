@@ -102,5 +102,8 @@ describe('Vertragswerte mit „gültig ab“', () => {
     const b = { ...a, from: '2026-10-01', hourlyRate: 22, workdays: [1, 2, 3, 4] as Project['workdays'] };
     expect(describeChanges(a, b, p).map((x) => x.replace(/\s/g, ' '))).toEqual(['Stundenlohn 22,00 €', 'Arbeitstage Mo–Do']);
     expect(fmtWorkdays([1, 3, 5])).toBe('Mo, Mi, Fr');
+    expect(fmtWorkdays([0, 1, 2, 3, 4])).toBe('So–Do');
+    expect(fmtWorkdays([1, 2, 3, 4, 5])).toBe('Mo–Fr');
+    expect(fmtWorkdays([5, 6, 0, 1])).toBe('Fr–Mo');
   });
 });

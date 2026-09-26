@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.8.0",
+    "date": "26.09.2026",
+    "changes": [
+      "Für Hahn Automation: Nachtschicht dem Folgetag zuordnen (Anstempeln Sonntag → steht beim Montag); Zulagen weiter nach echter Uhrzeit",
+      "Monatsansicht und PDF kennzeichnen einen Schichtbeginn am Vortag mit „−1“"
+    ]
+  },
+  {
     "version": "0.7.1",
     "date": "26.09.2026",
     "changes": [

@@ -1,5 +1,6 @@
 import { ABSENCE_TYPES } from './absences';
 import { holidayName } from './holidays';
+import { sessionDay } from './shift';
 import { projectAt } from './terms';
 import { MINUTE, dateKey, daysOfMonth, parseHM } from './time';
 import type { Absence, AbsenceType, AppState, DateKey, Project, Session, SurchargeMode, SurchargeRule } from './types';
@@ -134,9 +135,11 @@ export interface Index {
 
 export function buildIndex(state: AppState, projectId: string): Index {
   const sessionsByDay = new Map<string, Session[]>();
+  const project = state.projects.find((p) => p.id === projectId);
   for (const s of state.sessions) {
     if (s.projectId !== projectId) continue;
-    const k = dateKey(s.start);
+    // Tag der Anzeige (bei „Schicht dem Folgetag zuordnen“ der Tag nach dem Anstempeln)
+    const k = project ? sessionDay(project, s) : dateKey(s.start);
     const list = sessionsByDay.get(k) ?? [];
     list.push(s);
     sessionsByDay.set(k, list);
