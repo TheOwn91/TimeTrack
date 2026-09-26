@@ -3,6 +3,7 @@ import { ask, notify } from '../lib/demo';
 import { shareOrDownload } from '../lib/device';
 import { STATES } from '../lib/holidays';
 import { InstallCard } from './InstallCard';
+import { NumberField } from './NumberField';
 import { PROJECT_COLORS, newProject, useStore, validateState } from '../lib/store';
 import { WEEKDAYS_SHORT, dateKey, uid } from '../lib/time';
 import type { Project, SurchargeKind, SurchargeRule, Weekday } from '../lib/types';
@@ -36,13 +37,7 @@ function SurchargeEditor({ rule, onChange, onRemove }: { rule: SurchargeRule; on
         </label>
         <input className="grow" value={rule.name} onChange={(e) => set({ name: e.target.value })} />
         <label className="suffix">
-          <input
-            type="number"
-            min={0}
-            step={1}
-            value={rule.percent}
-            onChange={(e) => set({ percent: Number(e.target.value) })}
-          />
+          <NumberField value={rule.percent} decimals={1} max={1000} onChange={(percent) => set({ percent })} />
           %
         </label>
         <button className="icon-btn" onClick={onRemove} aria-label="Zulage entfernen">
@@ -112,23 +107,20 @@ function ProjectForm({ project }: { project: Project }) {
       <div className="grid-2">
         <label>
           Stundenlohn (€)
-          <input
-            type="number"
-            min={0}
-            step={0.01}
+          <NumberField
             value={project.hourlyRate}
-            onChange={(e) => set((p) => (p.hourlyRate = Number(e.target.value)))}
+            decimals={2}
+            minDecimals={2}
+            onChange={(v) => set((p) => (p.hourlyRate = v))}
           />
         </label>
         <label>
           Soll pro Tag (h)
-          <input
-            type="number"
-            min={0}
-            max={24}
-            step={0.25}
+          <NumberField
             value={project.dailyTargetHours}
-            onChange={(e) => set((p) => (p.dailyTargetHours = Number(e.target.value)))}
+            decimals={2}
+            max={24}
+            onChange={(v) => set((p) => (p.dailyTargetHours = v))}
           />
         </label>
       </div>
