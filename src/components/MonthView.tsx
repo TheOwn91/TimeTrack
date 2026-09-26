@@ -131,7 +131,8 @@ export function MonthView() {
               <span className="day-info">
                 {d.sessions.map((s) => (
                   <span key={s.id}>
-                    {fmtTime(s.start)}–{s.end ? fmtTime(s.end) : 'läuft'}
+                    {fmtTime(s.start)}
+                    {dateKey(s.start) !== d.date && <sup title="Beginn am Vortag">−1</sup>}–{s.end ? fmtTime(s.end) : 'läuft'}
                     {s.end && dateKey(s.end) !== d.date && <sup>+1</sup>}
                   </span>
                 ))}

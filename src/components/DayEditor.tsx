@@ -1,9 +1,10 @@
 import { ABSENCE_ORDER, ABSENCE_TYPES } from '../lib/absences';
 import { buildIndex, daySummary } from '../lib/calc';
 import { ask } from '../lib/demo';
+import { shiftsToNextDay, workDate } from '../lib/shift';
 import { projectAt } from '../lib/terms';
 import { useNow, useStore } from '../lib/store';
-import { MINUTE, combine, fmtDate, fmtDuration, fmtTime, uid } from '../lib/time';
+import { MINUTE, combine, dateKey, fmtDate, fmtDuration, fmtTime, uid } from '../lib/time';
 import type { AbsenceType, DateKey, Project, Session } from '../lib/types';
 import { Modal } from './Modal';
 
@@ -41,10 +42,11 @@ export function DayEditor({ project, date, onClose }: Props) {
 
   const addSession = () => {
     const last = day.sessions[day.sessions.length - 1];
-    const startTs = last?.end ? last.end + 30 * MINUTE : combine(date, '08:00');
+    // Bei „Schicht dem Folgetag zuordnen“ beginnt die Schicht am Vorabend
+    const nextDay = shiftsToNextDay(project);
+    const startTs = last?.end ? last.end + 30 * MINUTE : combine(workDate(project, date), nextDay ? '21:30' : '08:00');
     const workMin = Math.round(terms.dailyTargetHours * 60);
-    const pauses =
-      !last && workMin > 360 ? [{ start: combine(date, '12:00'), end: combine(date, '12:30') }] : [];
+    const pauses = !last && workMin > 360 ? [{ start: startTs + 240 * MINUTE, end: startTs + 270 * MINUTE }] : [];
     const endTs = startTs + (workMin + (pauses.length ? 30 : 0)) * MINUTE;
     update((d) => {
       d.sessions.push({ id: uid(), projectId: project.id, start: startTs, end: endTs, pauses });
@@ -87,7 +89,8 @@ export function DayEditor({ project, date, onClose }: Props) {
                     e.target.value &&
                     updateSession(s.id, (x) => {
                       const duration = (x.end ?? now) - x.start;
-                      const start = combine(date, e.target.value);
+                      // Uhrzeit am Kalendertag des bisherigen Beginns (bei Nachtschicht ggf. der Vortag)
+                      const start = combine(dateKey(x.start), e.target.value);
                       const shift = start - x.start;
                       x.start = start;
                       if (x.end !== undefined && x.end <= start) x.end = start + duration;
@@ -236,8 +239,10 @@ export function DayEditor({ project, date, onClose }: Props) {
         )}
       </section>
       <p className="muted small">
-        Tipp: Endzeiten vor der Beginnzeit werden dem Folgetag zugeordnet (Nachtschicht). Tagessoll:{' '}
-        {fmtDuration(terms.dailyTargetHours * 60)} h
+        {shiftsToNextDay(project)
+          ? `Schichten stehen beim Folgetag: Die Beginnzeit neuer Einträge bezieht sich auf ${fmtDate(workDate(project, date))}. `
+          : 'Tipp: Endzeiten vor der Beginnzeit werden dem Folgetag zugeordnet (Nachtschicht). '}
+        Tagessoll: {fmtDuration(terms.dailyTargetHours * 60)} h
       </p>
     </Modal>
   );

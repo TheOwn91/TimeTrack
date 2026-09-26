@@ -3,7 +3,8 @@ import { ask, notify } from '../lib/demo';
 import { shareOrDownload } from '../lib/device';
 import { STATES } from '../lib/holidays';
 import { PROJECT_COLORS, useStore, validateState } from '../lib/store';
-import { addRulePercent } from '../lib/terms';
+import { hasHahnOptions, setShiftToNextDay, shiftWeekdays } from '../lib/shift';
+import { addRulePercent, fmtWorkdays } from '../lib/terms';
 import { dateKey, uid } from '../lib/time';
 import type { Project, SurchargeKind, SurchargeRule } from '../lib/types';
 import { vacationPerYear } from '../lib/year';
@@ -113,6 +114,24 @@ function ProjectForm({ project }: { project: Project }) {
         <input type="checkbox" checked={project.autoBreak} onChange={(e) => set((p) => (p.autoBreak = e.target.checked))} />
         Gesetzliche Mindestpause automatisch abziehen (&gt; 6 h: 30 min, &gt; 9 h: 45 min)
       </label>
+      {hasHahnOptions(project) && (
+        <div className="hidden-option">
+          <label className="checkbox toggle-row">
+            <input
+              id="shift-next-day"
+              type="checkbox"
+              checked={!!project.shiftToNextDay}
+              onChange={(e) => set((p) => setShiftToNextDay(p, e.target.checked))}
+            />
+            Schicht dem Folgetag zuordnen
+          </label>
+          <p className="muted small">
+            Anstempeln am Sonntag → die Schicht steht beim Montag, Montag → Dienstag usw. Zulagen (z. B. Sonntag) werden
+            weiter nach den echten Uhrzeiten berechnet. Die Arbeitstage wandern mit
+            {project.shiftToNextDay ? '.' : ` (${fmtWorkdays(project.workdays)} → ${fmtWorkdays(shiftWeekdays(project.workdays, 1))}).`}
+          </p>
+        </div>
+      )}
 
       <TermsSection project={project} />
 

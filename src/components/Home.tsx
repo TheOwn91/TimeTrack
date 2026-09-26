@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ABSENCE_TYPES } from '../lib/absences';
 import { DEMO } from '../lib/demo';
+import { sessionDay } from '../lib/shift';
 import { isStandalone } from '../lib/device';
 import { notifyEnabled, requestNotifyPermission } from '../lib/status';
 import { buildIndex, daySummary, monthSummary, sessionStats, untrackedDays } from '../lib/calc';
@@ -59,7 +60,8 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
 
   const openPause = active?.pauses.find((p) => p.end === undefined);
   const stats = active ? sessionStats(active, now) : undefined;
-  const today = daySummary(project, dateKey(now), buildIndex(state, project.id), now);
+  // Tag, zu dem die laufende Schicht zählt (bei „Schicht dem Folgetag zuordnen“ ggf. morgen)
+  const today = daySummary(project, active ? sessionDay(project, active) : dateKey(now), buildIndex(state, project.id), now);
   const d = new Date(now);
   const month = monthSummary(state, project, d.getFullYear(), d.getMonth(), now);
   const missing = untrackedDays(state, project, now);

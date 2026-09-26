@@ -43,6 +43,8 @@ export interface Project {
   surchargeMode?: SurchargeMode;
   /** Ab diesem Tag werden fehlende Einträge angezeigt. */
   startDate: DateKey;
+  /** Versteckte Option (nur „Hahn Automation…“): Schicht dem Folgetag zuordnen, siehe shift.ts. */
+  shiftToNextDay?: boolean;
   /** Urlaubsanspruch pro Kalenderjahr in Tagen (Standard 30). */
   vacationDaysPerYear?: number;
   /** Verfügbarer Resturlaub im Jahr des Erfassungsbeginns (Standard: voller Jahresanspruch). */

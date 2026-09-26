@@ -51,7 +51,12 @@ export function buildMonthReport(state: AppState, project: Project, year: number
   const body = sum.days.map((d): string[] => {
     const date = parseDateKey(d.date);
     const times = d.sessions
-      .map((s) => `${fmtTime(s.start)}–${s.end ? fmtTime(s.end) + (dateKey(s.end) !== d.date ? ' (+1)' : '') : 'läuft'}`)
+      .map(
+        (s) =>
+          `${fmtTime(s.start)}${dateKey(s.start) !== d.date ? ' (-1)' : ''}–${
+            s.end ? fmtTime(s.end) + (dateKey(s.end) !== d.date ? ' (+1)' : '') : 'läuft'
+          }`,
+      )
       .join('\n');
     const remarks: string[] = [];
     if (d.holiday) remarks.push(d.holiday);

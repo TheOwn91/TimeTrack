@@ -84,10 +84,14 @@ export function fmtWorkdays(days: Weekday[]): string {
   const order: Weekday[] = [1, 2, 3, 4, 5, 6, 0];
   const sorted = order.filter((d) => days.includes(d));
   if (!sorted.length) return 'keine';
-  // Zusammenhängende Tage als „Mo–Fr“
-  const idx = sorted.map((d) => order.indexOf(d));
-  const contiguous = idx.every((v, i) => i === 0 || v === idx[i - 1] + 1);
-  if (contiguous && sorted.length > 2) return `${WEEKDAYS_SHORT[sorted[0]]}–${WEEKDAYS_SHORT[sorted[sorted.length - 1]]}`;
+  if (sorted.length === 7) return 'Mo–So';
+  // Zusammenhängende Tage als „Mo–Fr“, auch über das Wochenende hinweg („So–Do“, „Fr–Mo“)
+  if (sorted.length > 2) {
+    for (let i = 0; i < 7; i++) {
+      const run = Array.from({ length: sorted.length }, (_, k) => order[(i + k) % 7]);
+      if (run.every((d) => days.includes(d))) return `${WEEKDAYS_SHORT[run[0]]}–${WEEKDAYS_SHORT[run[run.length - 1]]}`;
+    }
+  }
   return sorted.map((d) => WEEKDAYS_SHORT[d]).join(', ');
 }
 
