@@ -30,4 +30,6 @@ Offline-fähige PWA zur Arbeitszeiterfassung (React + TypeScript + Vite). UI-Spr
 
 Bei jeder für Nutzer sichtbaren Änderung in `src/lib/changelog.ts` oben einen Eintrag ergänzen
 (neue Versionsnummer, Datum, Änderungen in einfachen Worten) und `version` in `package.json` angleichen.
+Während der Entwicklung bleibt die Version bei 0.x (neue Funktionen: 0.x → 0.x+1, Korrekturen: 0.x.y → 0.x.y+1);
+1.0.0 erst nach Absprache mit dem Nutzer zum offiziellen Start.
 Nach einem Update zeigt die App diese Einträge einmalig beim Start (abschaltbar).

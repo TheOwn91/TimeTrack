@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { APP_VERSION, setUpdateNotesEnabled, updateNotesEnabled } from '../lib/changelog';
+import { APP_VERSION, IN_DEVELOPMENT, setUpdateNotesEnabled, updateNotesEnabled } from '../lib/changelog';
 
 /** App-Version, Änderungen nachlesen und Meldung nach Updates ein-/ausschalten. */
 export function VersionCard({ onShowWhatsNew }: { onShowWhatsNew: () => void }) {
@@ -7,7 +7,10 @@ export function VersionCard({ onShowWhatsNew }: { onShowWhatsNew: () => void }) 
   return (
     <section className="card">
       <h2>App-Version</h2>
-      <p className="muted small">TimeTrack {APP_VERSION}</p>
+      <p className="muted small">
+        TimeTrack {APP_VERSION}
+        {IN_DEVELOPMENT && ' · in Entwicklung'}
+      </p>
       <label className="checkbox toggle-row">
         <input
           id="update-notes"

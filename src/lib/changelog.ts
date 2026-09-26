@@ -9,7 +9,7 @@ export interface Release {
 /** Neueste Version zuerst. Bei jedem Update hier einen Eintrag ergänzen. */
 export const CHANGELOG: Release[] = [
   {
-    version: '1.4.0',
+    version: '0.4.0',
     date: '26.09.2026',
     changes: [
       'Neue Seite „Jahr“: Urlaub (Anspruch, Übertrag, genommen, geplant, Rest) und Überstundenkonto Monat für Monat',
@@ -20,23 +20,26 @@ export const CHANGELOG: Release[] = [
     ],
   },
   {
-    version: '1.3.0',
+    version: '0.3.0',
     date: '26.09.2026',
     changes: ['Symbol in der Statusleiste, solange die Zeit läuft', 'Zahlenfelder akzeptieren Komma („22,50“)', 'Besser lesbarer Dark Mode'],
   },
   {
-    version: '1.2.0',
+    version: '0.2.0',
     date: '26.09.2026',
     changes: ['Läuft offline als App auf dem Handy', 'PDF-Bericht und Datensicherung über das Teilen-Menü'],
   },
   {
-    version: '1.0.0',
+    version: '0.1.0',
     date: '25.09.2026',
     changes: ['Erste Version: Zeiterfassung, Monatsansicht, Zulagen, PDF-Monatsbericht'],
   },
 ];
 
 export const APP_VERSION = CHANGELOG[0].version;
+
+/** Solange die Version mit 0. beginnt, ist die App noch in Entwicklung. */
+export const IN_DEVELOPMENT = APP_VERSION.startsWith('0.');
 
 const SEEN_KEY = 'timetrack.lastSeenVersion';
 const OFF_KEY = 'timetrack.updateNotes';
