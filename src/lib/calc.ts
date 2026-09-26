@@ -2,7 +2,7 @@ import { ABSENCE_TYPES } from './absences';
 import { holidayName } from './holidays';
 import { projectAt } from './terms';
 import { MINUTE, dateKey, daysOfMonth, parseHM } from './time';
-import type { Absence, AbsenceType, AppState, DateKey, Project, Session, SurchargeRule } from './types';
+import type { Absence, AbsenceType, AppState, DateKey, Project, Session, SurchargeMode, SurchargeRule } from './types';
 
 export type Interval = [number, number];
 
@@ -65,10 +65,15 @@ function ruleMatches(rule: SurchargeRule, ts: number, state: string): boolean {
 }
 
 /** Minuten je Zuschlagsregel für die gegebenen Arbeitsintervalle. */
+/**
+ * Minuten je Zulagen-Regel. `mode` 'max': gelten zur selben Zeit mehrere Zulagen, zählt nur die
+ * mit dem höchsten Satz (bei Gleichstand die erste in der Liste); 'stack': alle zählen.
+ */
 export function surchargeMinutes(
   intervals: Interval[],
   rules: SurchargeRule[],
   state: string,
+  mode: SurchargeMode = 'max',
 ): Record<string, number> {
   const active = rules.filter((r) => r.enabled);
   const result: Record<string, number> = {};
@@ -79,7 +84,13 @@ export function surchargeMinutes(
     while (cur < end) {
       const next = Math.min(end, Math.floor(cur / MINUTE) * MINUTE + MINUTE);
       const dur = (next - cur) / MINUTE;
-      for (const r of active) if (ruleMatches(r, cur, state)) result[r.id] += dur;
+      const matching = active.filter((r) => ruleMatches(r, cur, state));
+      if (mode === 'stack') {
+        for (const r of matching) result[r.id] += dur;
+      } else if (matching.length) {
+        const best = matching.reduce((a, b) => (b.percent > a.percent ? b : a));
+        result[best.id] += dur;
+      }
       cur = next;
     }
   }
@@ -186,7 +197,7 @@ export function daySummary(base: Project, date: DateKey, index: Index, now: numb
     sessions.length === 0 &&
     !absence;
 
-  const surcharges = surchargeMinutes(intervals, project.surcharges, project.state);
+  const surcharges = surchargeMinutes(intervals, project.surcharges, project.state, project.surchargeMode ?? 'max');
   const surchargeAmounts: Record<string, number> = {};
   for (const r of project.surcharges)
     if (r.id in surcharges) surchargeAmounts[r.id] = (surcharges[r.id] / 60) * project.hourlyRate * (r.percent / 100);

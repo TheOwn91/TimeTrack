@@ -6,6 +6,8 @@ export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export type SurchargeKind = 'time' | 'weekday' | 'holiday';
 
+export type SurchargeMode = 'max' | 'stack';
+
 export interface SurchargeRule {
   id: string;
   name: string;
@@ -34,6 +36,11 @@ export interface Project {
   /** Bundesland-Kürzel für Feiertage, '' = keine Feiertage. */
   state: string;
   surcharges: SurchargeRule[];
+  /**
+   * Treffen mehrere Zulagen zusammen (z. B. Sonntag und Nacht): 'max' = nur die höchste zählt
+   * (Standard), 'stack' = alle werden addiert.
+   */
+  surchargeMode?: SurchargeMode;
   /** Ab diesem Tag werden fehlende Einträge angezeigt. */
   startDate: DateKey;
   /** Urlaubsanspruch pro Kalenderjahr in Tagen (Standard 30). */
