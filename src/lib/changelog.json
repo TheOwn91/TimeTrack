@@ -1,5 +1,14 @@
 [
   {
+    "version": "0.6.0",
+    "date": "26.09.2026",
+    "changes": [
+      "Stundenlohn, Soll pro Tag, Arbeitstage und Zuschläge mit „gültig ab“ – vergangene Monate bleiben unverändert",
+      "Verlauf der Änderungen unter „Einstellungen → Lohn & Arbeitszeit“",
+      "PDF-Bericht nennt Änderungen innerhalb des Monats"
+    ]
+  },
+  {
     "version": "0.5.0",
     "date": "26.09.2026",
     "changes": [

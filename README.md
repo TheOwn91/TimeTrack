@@ -27,6 +27,7 @@ Einmalig nötig: im Repository unter *Settings → Pages → Source* „GitHub A
 - **Pausen automatisch**: Pausen-Button, Lücken zwischen Buchungen eines Tages zählen als Pause, optional wird die gesetzliche Mindestpause (§ 4 ArbZG: > 6 h → 30 min, > 9 h → 45 min) abgezogen
 - **Startseite**: Arbeitsauswahl, Timer, Monatsstunden (Ist / Soll bis heute / Saldo), aktuelle Zulagen, vergangene Arbeitstage ohne Erfassung mit Schnellauswahl (Urlaub, Krank, Überstundenausgleich, Kurzarbeit, Frei)
 - **Jahresübersicht**: Urlaub (Anspruch, Übertrag aus dem Vorjahr, genommen, geplant, Rest) und Überstundenkonto Monat für Monat. Resturlaub und Überstunden werden automatisch ins nächste Jahr übernommen.
+- **„Gültig ab“ für Vertragswerte**: Stundenlohn, Soll pro Tag, Arbeitstage und Zuschläge lassen sich ab einem Datum ändern; vergangene Tage rechnen weiter mit den alten Werten (Verlauf unter „Einstellungen → Lohn & Arbeitszeit“)
 - **Zuschlag auf Überstunden** (z. B. 25 %): wird am Monatsende auf die positiven Überstunden des Monats gutgeschrieben
 - **Urlaubstage** des Monats und Resturlaub in der Monatsübersicht
 - **Monatsansicht** mit allen Tagen; Tippen auf einen Tag öffnet den Editor zum Nachtragen/Korrigieren von Zeiten, Pausen und Abwesenheits-Schlüsseln

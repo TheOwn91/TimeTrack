@@ -1,4 +1,5 @@
 import { holidayName } from './holidays';
+import { BEGINNING } from './terms';
 import { MINUTE, addDays, combine, dateKey, parseDateKey, uid } from './time';
 import type { Absence, AppState, Project, Session } from './types';
 
@@ -128,6 +129,20 @@ export function demoState(now = Date.now()): AppState {
     absences.push({ id: uid(), projectId: project.id, date: d, type: 'urlaub' });
     n++;
   }
+
+  // Lohnerhöhung zum Monatsanfang: vorher 16,90 €, seitdem 17,50 € (Verlauf in den Einstellungen)
+  const monthStart = `${today.slice(0, 7)}-01`;
+  const t = {
+    hourlyRate: project.hourlyRate,
+    dailyTargetHours: project.dailyTargetHours,
+    workdays: project.workdays,
+    overtimeSurchargePercent: project.overtimeSurchargePercent ?? 0,
+    surchargePercents: Object.fromEntries(project.surcharges.map((r) => [r.id, r.percent])),
+  };
+  project.terms = [
+    { ...t, from: BEGINNING, hourlyRate: 16.9 },
+    { ...t, from: monthStart },
+  ];
 
   return { version: 1, projects: [project, side], sessions, absences, selectedProjectId: project.id };
 }

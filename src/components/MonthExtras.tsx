@@ -1,12 +1,10 @@
 import type { MonthSummary } from '../lib/calc';
 import { fmtDuration } from '../lib/time';
-import type { Project } from '../lib/types';
 import { overtimeSurcharge } from '../lib/year';
 
 const fmtDays = (n: number) => n.toLocaleString('de-DE', { maximumFractionDigits: 1 });
 
 interface Props {
-  project: Project;
   month: MonthSummary;
   year: number;
   /** Resturlaub des Jahres (inkl. Übertrag, abzüglich genommen und geplant). */
@@ -16,10 +14,11 @@ interface Props {
 }
 
 /** Urlaubstage des Monats und Überstunden-Zuschlag unter den Monatsstunden. */
-export function MonthExtras({ project, month, year, vacationRemaining, complete }: Props) {
+export function MonthExtras({ month, year, vacationRemaining, complete }: Props) {
   const vacation = month.absenceCounts.urlaub ?? 0;
-  const pct = project.overtimeSurchargePercent ?? 0;
-  const surcharge = overtimeSurcharge(project, month.balance);
+  // Satz, der zum Monatsende gilt
+  const pct = month.endTerms.overtimeSurchargePercent ?? 0;
+  const surcharge = overtimeSurcharge(month.endTerms, month.balance);
   return (
     <div className="month-extra">
       <div>

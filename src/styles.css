@@ -1040,3 +1040,73 @@ html {
 .surcharge-list li > :first-child {
   overflow-wrap: anywhere;
 }
+
+/* Lohn & Arbeitszeit mit „gültig ab“ */
+.field-list .field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+  border-bottom: 1px solid var(--border);
+}
+.field-list .field-row:last-child {
+  border-bottom: none;
+}
+.field-list .field-row strong {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.field-list label.muted {
+  color: var(--muted);
+}
+.terms-history {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+.terms-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: left;
+  background: var(--off);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+}
+.terms-entry.active {
+  border-color: var(--primary);
+}
+.terms-date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+.terms-date .tag {
+  color: var(--link);
+}
+.terms-from {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+.terms-workdays {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.btn.danger-text {
+  color: var(--danger);
+  background: var(--danger-soft);
+}

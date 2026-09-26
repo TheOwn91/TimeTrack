@@ -71,7 +71,6 @@ export function MonthView() {
           </div>
         </div>
         <MonthExtras
-          project={project}
           month={sum}
           year={ym.y}
           vacationRemaining={yearOverview(state, project, ym.y, now).vacation.remaining}
@@ -97,7 +96,7 @@ export function MonthView() {
                 <li key={s.rule.id}>
                   <span>{s.rule.name}</span>
                   <span>{fmtDuration(s.minutes)} h</span>
-                  {project.hourlyRate > 0 && <strong>{fmtMoney(s.amount)}</strong>}
+                  {sum.hasRate && <strong>{fmtMoney(s.amount)}</strong>}
                 </li>
               ))}
           </ul>

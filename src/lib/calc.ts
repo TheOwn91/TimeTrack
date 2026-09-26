@@ -1,5 +1,6 @@
 import { ABSENCE_TYPES } from './absences';
 import { holidayName } from './holidays';
+import { projectAt } from './terms';
 import { MINUTE, dateKey, daysOfMonth, parseHM } from './time';
 import type { Absence, AbsenceType, AppState, DateKey, Project, Session, SurchargeRule } from './types';
 
@@ -105,6 +106,12 @@ export interface DaySummary {
   /** Sollminuten. */
   target: number;
   surcharges: Record<string, number>;
+  /** Zulagen in € je Regel (mit den an diesem Tag gültigen Sätzen). */
+  surchargeAmounts: Record<string, number>;
+  /** An diesem Tag gültiger Stundenlohn. */
+  rate: number;
+  /** Lohn für Arbeitszeit + Gutschrift dieses Tages. */
+  wage: number;
   /** Vergangener Arbeitstag ohne Buchung und ohne Abwesenheit. */
   untracked: boolean;
 }
@@ -129,7 +136,9 @@ export function buildIndex(state: AppState, projectId: string): Index {
   return { sessionsByDay, absenceByDay };
 }
 
-export function daySummary(project: Project, date: DateKey, index: Index, now: number): DaySummary {
+export function daySummary(base: Project, date: DateKey, index: Index, now: number): DaySummary {
+  // Stundenlohn, Soll, Arbeitstage und Zuschläge so, wie sie an diesem Tag galten
+  const project = projectAt(base, date);
   const today = dateKey(now);
   const sessions = index.sessionsByDay.get(date) ?? [];
   const absence = index.absenceByDay.get(date);
@@ -177,6 +186,12 @@ export function daySummary(project: Project, date: DateKey, index: Index, now: n
     sessions.length === 0 &&
     !absence;
 
+  const surcharges = surchargeMinutes(intervals, project.surcharges, project.state);
+  const surchargeAmounts: Record<string, number> = {};
+  for (const r of project.surcharges)
+    if (r.id in surcharges) surchargeAmounts[r.id] = (surcharges[r.id] / 60) * project.hourlyRate * (r.percent / 100);
+  const workedFinal = Math.max(0, worked);
+
   return {
     date,
     isWorkday,
@@ -188,10 +203,13 @@ export function daySummary(project: Project, date: DateKey, index: Index, now: n
     running,
     pause: Math.max(0, pause) + autoBreak,
     autoBreak,
-    worked: Math.max(0, worked),
+    worked: workedFinal,
     credit,
     target,
-    surcharges: surchargeMinutes(intervals, project.surcharges, project.state),
+    surcharges,
+    surchargeAmounts,
+    rate: project.hourlyRate,
+    wage: ((workedFinal + credit) / 60) * project.hourlyRate,
     untracked,
   };
 }
@@ -204,9 +222,14 @@ export interface MonthSummary {
   balance: number;
   workedDays: number;
   absenceCounts: Partial<Record<AbsenceType, number>>;
+  /** `rule.percent` = Satz zum Monatsende (bei Änderung im Monat wird tageweise gerechnet). */
   surcharges: { rule: SurchargeRule; minutes: number; amount: number }[];
   surchargeTotal: number;
   baseWage: number;
+  /** In diesem Monat ist (zumindest zeitweise) ein Stundenlohn hinterlegt. */
+  hasRate: boolean;
+  /** Arbeitgeber mit den zum Monatsende gültigen Werten. */
+  endTerms: Project;
 }
 
 export function monthSummary(
@@ -224,12 +247,14 @@ export function monthSummary(
   const absenceCounts: Partial<Record<AbsenceType, number>> = {};
   for (const d of days)
     if (d.absence) absenceCounts[d.absence.type] = (absenceCounts[d.absence.type] ?? 0) + 1;
-  const surcharges = project.surcharges
+  const endTerms = projectAt(project, days[days.length - 1].date);
+  const surcharges = endTerms.surcharges
     .filter((r) => r.enabled)
-    .map((rule) => {
-      const minutes = days.reduce((a, d) => a + (d.surcharges[rule.id] ?? 0), 0);
-      return { rule, minutes, amount: (minutes / 60) * project.hourlyRate * (rule.percent / 100) };
-    });
+    .map((rule) => ({
+      rule,
+      minutes: days.reduce((a, d) => a + (d.surcharges[rule.id] ?? 0), 0),
+      amount: days.reduce((a, d) => a + (d.surchargeAmounts[rule.id] ?? 0), 0),
+    }));
   return {
     days,
     worked,
@@ -240,7 +265,9 @@ export function monthSummary(
     absenceCounts,
     surcharges,
     surchargeTotal: surcharges.reduce((a, s) => a + s.amount, 0),
-    baseWage: ((worked + credit) / 60) * project.hourlyRate,
+    baseWage: days.reduce((a, d) => a + d.wage, 0),
+    hasRate: days.some((d) => d.rate > 0),
+    endTerms,
   };
 }
 

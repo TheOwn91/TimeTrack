@@ -44,7 +44,25 @@ export interface Project {
   overtimeAtStartHours?: number;
   /** Zuschlag in % auf positive Monatsüberstunden, gutgeschrieben am Monatsende. */
   overtimeSurchargePercent?: number;
+  /**
+   * Vertragswerte mit „gültig ab“ (Stundenlohn, Soll, Arbeitstage, Zuschläge). Fehlt die Liste,
+   * gelten die Felder oben für den ganzen Zeitraum. Die Felder oben spiegeln immer die heute
+   * gültigen Werte.
+   */
+  terms?: Terms[];
   archived?: boolean;
+}
+
+/** Vertragswerte, die ab einem Datum gelten. */
+export interface Terms {
+  /** Gültig ab (YYYY-MM-DD); der erste Eintrag gilt ab Erfassungsbeginn: BEGINNING. */
+  from: DateKey;
+  hourlyRate: number;
+  dailyTargetHours: number;
+  workdays: Weekday[];
+  overtimeSurchargePercent: number;
+  /** Zuschlag in % je Zulagen-Regel (fehlt eine Regel, gilt ihr Standardwert). */
+  surchargePercents: Record<string, number>;
 }
 
 export interface Pause {

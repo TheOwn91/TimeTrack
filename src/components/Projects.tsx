@@ -2,33 +2,17 @@ import { useRef, useState } from 'react';
 import { ask, notify } from '../lib/demo';
 import { shareOrDownload } from '../lib/device';
 import { STATES } from '../lib/holidays';
+import { PROJECT_COLORS, newProject, useStore, validateState } from '../lib/store';
+import { addRulePercent } from '../lib/terms';
+import { dateKey, uid } from '../lib/time';
+import type { Project, SurchargeKind, SurchargeRule } from '../lib/types';
+import { vacationPerYear } from '../lib/year';
 import { InstallCard } from './InstallCard';
 import { NotifyCard } from './NotifyCard';
-import { VersionCard } from './VersionCard';
 import { NumberField } from './NumberField';
-import { vacationPerYear } from '../lib/year';
-import { PROJECT_COLORS, newProject, useStore, validateState } from '../lib/store';
-import { WEEKDAYS_SHORT, dateKey, uid } from '../lib/time';
-import type { Project, SurchargeKind, SurchargeRule, Weekday } from '../lib/types';
-
-const WEEK_ORDER: Weekday[] = [1, 2, 3, 4, 5, 6, 0];
-
-function WeekdayToggle({ value, onChange }: { value: Weekday[]; onChange: (v: Weekday[]) => void }) {
-  return (
-    <div className="weekday-toggle">
-      {WEEK_ORDER.map((w) => (
-        <button
-          key={w}
-          type="button"
-          className={value.includes(w) ? 'active' : ''}
-          onClick={() => onChange(value.includes(w) ? value.filter((x) => x !== w) : [...value, w])}
-        >
-          {WEEKDAYS_SHORT[w]}
-        </button>
-      ))}
-    </div>
-  );
-}
+import { TermsSection } from './TermsSection';
+import { VersionCard } from './VersionCard';
+import { WeekdayToggle } from './WeekdayToggle';
 
 function SurchargeEditor({ rule, onChange, onRemove }: { rule: SurchargeRule; onChange: (r: SurchargeRule) => void; onRemove: () => void }) {
   const set = (patch: Partial<SurchargeRule>) => onChange({ ...rule, ...patch });
@@ -39,10 +23,7 @@ function SurchargeEditor({ rule, onChange, onRemove }: { rule: SurchargeRule; on
           <input type="checkbox" checked={rule.enabled} onChange={(e) => set({ enabled: e.target.checked })} />
         </label>
         <input className="grow" value={rule.name} onChange={(e) => set({ name: e.target.value })} />
-        <label className="suffix">
-          <NumberField value={rule.percent} decimals={1} max={1000} onChange={(percent) => set({ percent })} />
-          %
-        </label>
+        <span className="suffix muted">{rule.percent.toLocaleString('de-DE')} %</span>
         <button className="icon-btn" onClick={onRemove} aria-label="Zulage entfernen">
           ✕
         </button>
@@ -109,28 +90,6 @@ function ProjectForm({ project }: { project: Project }) {
       </div>
       <div className="grid-2">
         <label>
-          Stundenlohn (€)
-          <NumberField
-            value={project.hourlyRate}
-            decimals={2}
-            minDecimals={2}
-            onChange={(v) => set((p) => (p.hourlyRate = v))}
-          />
-        </label>
-        <label>
-          Soll pro Tag (h)
-          <NumberField
-            value={project.dailyTargetHours}
-            decimals={2}
-            max={24}
-            onChange={(v) => set((p) => (p.dailyTargetHours = v))}
-          />
-        </label>
-      </div>
-      <label>Arbeitstage</label>
-      <WeekdayToggle value={project.workdays} onChange={(v) => set((p) => (p.workdays = v))} />
-      <div className="grid-2">
-        <label>
           Feiertage
           <select value={project.state} onChange={(e) => set((p) => (p.state = e.target.value))}>
             {Object.entries(STATES).map(([k, v]) => (
@@ -153,6 +112,8 @@ function ProjectForm({ project }: { project: Project }) {
         <input type="checkbox" checked={project.autoBreak} onChange={(e) => set((p) => (p.autoBreak = e.target.checked))} />
         Gesetzliche Mindestpause automatisch abziehen (&gt; 6 h: 30 min, &gt; 9 h: 45 min)
       </label>
+
+      <TermsSection project={project} />
 
       <h3>Urlaub &amp; Überstunden</h3>
       <div className="field-list">
@@ -186,16 +147,6 @@ function ProjectForm({ project }: { project: Project }) {
           />
           <span className="unit">h</span>
         </label>
-        <label>
-          <span>Zuschlag auf Überstunden</span>
-          <NumberField
-            value={project.overtimeSurchargePercent ?? 0}
-            decimals={1}
-            max={1000}
-            onChange={(v) => set((p) => (p.overtimeSurchargePercent = v))}
-          />
-          <span className="unit">%</span>
-        </label>
       </div>
       <p className="muted small">
         „Zu Beginn“ = Stand am Tag „Erfassung ab“ (Minusstunden mit „-“ eingeben). Der Zuschlag wird am Monatsende auf
@@ -204,7 +155,8 @@ function ProjectForm({ project }: { project: Project }) {
 
       <h3>Zulagen</h3>
       <p className="muted small">
-        Zulagen werden minutengenau berechnet. Bei Uhrzeiten über Mitternacht (z. B. 22:00–06:00) einfach Ende vor Beginn eintragen.
+        Zulagen werden minutengenau berechnet. Bei Uhrzeiten über Mitternacht (z. B. 22:00–06:00) einfach Ende vor Beginn
+        eintragen. Die Prozentsätze änderst du oben unter „Lohn &amp; Arbeitszeit → Werte ändern“ – mit „gültig ab“.
       </p>
       {project.surcharges.map((r) => (
         <SurchargeEditor
@@ -218,8 +170,11 @@ function ProjectForm({ project }: { project: Project }) {
         className="btn secondary full"
         onClick={() =>
           set((p) =>
-            p.surcharges.push({ id: uid(), name: 'Neue Zulage', kind: 'time', from: '20:00', to: '23:00', percent: 10, enabled: true }),
-          )
+          {
+            const id = uid();
+            p.surcharges.push({ id, name: 'Neue Zulage', kind: 'time', from: '20:00', to: '23:00', percent: 10, enabled: true });
+            addRulePercent(p, id, 10);
+          })
         }
       >
         + Zulage hinzufügen

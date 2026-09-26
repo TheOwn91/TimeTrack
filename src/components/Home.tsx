@@ -187,7 +187,6 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
           </div>
         </div>
         <MonthExtras
-          project={project}
           month={month}
           year={d.getFullYear()}
           vacationRemaining={yearOverview(state, project, d.getFullYear(), now).vacation.remaining}
@@ -207,10 +206,10 @@ export function Home({ onOpenProjects }: { onOpenProjects: () => void }) {
                   {s.rule.name} <span className="muted">({s.rule.percent} %)</span>
                 </span>
                 <span>{fmtDuration(s.minutes)} h</span>
-                {project.hourlyRate > 0 && <strong>{fmtMoney(s.amount)}</strong>}
+                {month.hasRate && <strong>{fmtMoney(s.amount)}</strong>}
               </li>
             ))}
-            {project.hourlyRate > 0 && (
+            {month.hasRate && (
               <li className="total">
                 <span>Summe Zulagen</span>
                 <span />

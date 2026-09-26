@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNow, useStore } from '../lib/store';
-import { MONTHS, fmtDuration } from '../lib/time';
+import { termsAt } from '../lib/terms';
+import { MONTHS, dateKey, fmtDuration } from '../lib/time';
 import { yearOverview } from '../lib/year';
 import { ProjectPicker } from './ProjectPicker';
 
@@ -25,7 +26,7 @@ export function YearView() {
   const v = y.vacation;
   const o = y.overtime;
   const available = v.entitlement + v.carryIn;
-  const pct = project.overtimeSurchargePercent ?? 0;
+  const pct = termsAt(project, dateKey(now)).overtimeSurchargePercent;
   const pastYear = year < new Date(now).getFullYear();
   const usedShare = available > 0 ? Math.min(1, v.taken / available) : 0;
   const plannedShare = available > 0 ? Math.min(1 - usedShare, v.planned / available) : 0;
