@@ -29,6 +29,7 @@ Einmalig nötig: im Repository unter *Settings → Pages → Source* „GitHub A
 - **Monatsansicht** mit allen Tagen; Tippen auf einen Tag öffnet den Editor zum Nachtragen/Korrigieren von Zeiten, Pausen und Abwesenheits-Schlüsseln
 - **Zulagen** minutengenau: Uhrzeit-Fenster (auch über Mitternacht, optional nur an bestimmten Wochentagen), Wochentage (z. B. Sonntag) und Feiertage – in Stunden und € (bei hinterlegtem Stundenlohn)
 - **PDF-Monatsbericht** mit Tagesliste, Zusammenfassung, Zulagen und Unterschriftsfeldern
+- **Statusleiste**: Solange die Zeit läuft, zeigt die App eine Benachrichtigung („Zeit läuft seit 07:02“ bzw. „Pause seit …“) und eine Markierung am App-Symbol. Android: sofort; iPhone: ab iOS 16.4 in der installierten App. Abschaltbar unter „Arbeitgeber → Statusleiste“.
 
 ### Abwesenheits-Schlüssel
 

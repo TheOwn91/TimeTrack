@@ -49,6 +49,17 @@ self.addEventListener('fetch', (event) => {
   const key = req.mode === 'navigate' ? './' : req;
   event.respondWith(caches.match(key, { ignoreSearch: true }).then((hit) => hit || fetch(req)));
 });
+
+// Tipp auf die „Zeit läuft“-Benachrichtigung öffnet die App (oder holt sie nach vorn)
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      const open = list.find((c) => 'focus' in c);
+      return open ? open.focus() : self.clients.openWindow('./');
+    }),
+  );
+});
 `,
       });
     },

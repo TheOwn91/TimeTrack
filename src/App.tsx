@@ -3,6 +3,7 @@ import { Home } from './components/Home';
 import { MonthView } from './components/MonthView';
 import { Projects } from './components/Projects';
 import { DEMO, demoState } from './lib/demo';
+import { syncRunningStatus } from './lib/status';
 import { useStore } from './lib/store';
 
 type Tab = 'home' | 'month' | 'projects';
@@ -16,7 +17,12 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 export function App() {
   const [tab, setTab] = useState<Tab>('home');
   const [notice, setNotice] = useState<string | null>(null);
-  const { replace } = useStore();
+  const { state, replace } = useStore();
+
+  // Benachrichtigung und Badge folgen dem Timer (auch nach Neustart der App)
+  useEffect(() => {
+    void syncRunningStatus(state);
+  }, [state]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;

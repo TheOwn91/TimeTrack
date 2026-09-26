@@ -3,6 +3,7 @@ import { ask, notify } from '../lib/demo';
 import { shareOrDownload } from '../lib/device';
 import { STATES } from '../lib/holidays';
 import { InstallCard } from './InstallCard';
+import { NotifyCard } from './NotifyCard';
 import { NumberField } from './NumberField';
 import { PROJECT_COLORS, newProject, useStore, validateState } from '../lib/store';
 import { WEEKDAYS_SHORT, dateKey, uid } from '../lib/time';
@@ -256,6 +257,8 @@ export function Projects() {
       ))}
 
       <InstallCard />
+
+      <NotifyCard />
 
       <section className="card">
         <h2>Datensicherung</h2>
