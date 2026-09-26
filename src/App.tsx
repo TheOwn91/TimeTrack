@@ -38,7 +38,10 @@ export function App() {
         <h1>TimeTrack</h1>
         {DEMO && (
           <div className="demo-bar">
-            <span>Demo mit Beispieldaten</span>
+            <span>
+              Demo · Stand{' '}
+              {new Date(__BUILD_TIME__).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+            </span>
             <button className="link" onClick={() => replace(demoState())}>
               Zurücksetzen
             </button>

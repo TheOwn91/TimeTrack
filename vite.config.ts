@@ -55,15 +55,19 @@ self.addEventListener('fetch', (event) => {
   };
 }
 
+const define = { __BUILD_TIME__: JSON.stringify(new Date().toISOString()) };
+
 export default defineConfig(({ mode }) =>
   mode === 'demo'
     ? {
+        define,
         // Demo: alles in einer Datei, ohne Service Worker (für eingebettete Vorschau)
         base: './',
         plugins: [react()],
         build: { outDir: 'dist-demo', assetsInlineLimit: 100_000_000, cssCodeSplit: false },
       }
     : {
+        define,
         base: './',
         plugins: [react(), serviceWorker()],
       },
