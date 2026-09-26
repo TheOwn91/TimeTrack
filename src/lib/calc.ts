@@ -2,7 +2,8 @@ import { ABSENCE_TYPES } from './absences';
 import { holidayName } from './holidays';
 import { sessionDay } from './shift';
 import { projectAt } from './terms';
-import { MINUTE, dateKey, daysOfMonth, parseHM } from './time';
+import { MINUTE, dateKey, daysOfMonth, parseHM, pad } from './time';
+import { accountBeforeMonth } from './year';
 import type { Absence, AbsenceType, AppState, DateKey, Project, Session, SurchargeMode, SurchargeRule } from './types';
 
 export type Interval = [number, number];
@@ -117,6 +118,10 @@ export interface DaySummary {
   credit: number;
   /** Sollminuten. */
   target: number;
+  /** Kurzarbeit: vom Stundenkonto genommene Minuten. */
+  shortTimeFromAccount: number;
+  /** Kurzarbeit: nicht vom Konto gedeckt → Soll entfällt (Minuten). */
+  shortTimeUncovered: number;
   surcharges: Record<string, number>;
   /** Zulagen in € je Regel (mit den an diesem Tag gültigen Sätzen). */
   surchargeAmounts: Record<string, number>;
@@ -150,7 +155,11 @@ export function buildIndex(state: AppState, projectId: string): Index {
   return { sessionsByDay, absenceByDay };
 }
 
-export function daySummary(base: Project, date: DateKey, index: Index, now: number): DaySummary {
+/**
+ * `account`: Stand des Stundenkontos vor diesem Tag (Minuten). Wird nur für Kurzarbeit gebraucht –
+ * sie nimmt höchstens so viel vom Konto, wie es an Plusstunden hat.
+ */
+export function daySummary(base: Project, date: DateKey, index: Index, now: number, account = 0): DaySummary {
   // Stundenlohn, Soll, Arbeitstage und Zuschläge so, wie sie an diesem Tag galten
   const project = projectAt(base, date);
   const today = dateKey(now);
@@ -206,6 +215,16 @@ export function daySummary(base: Project, date: DateKey, index: Index, now: numb
     if (r.id in surcharges) surchargeAmounts[r.id] = (surcharges[r.id] / 60) * project.hourlyRate * (r.percent / 100);
   const workedFinal = Math.max(0, worked);
 
+  // Kurzarbeit: fehlende Stunden vom Konto nehmen, soweit Plusstunden da sind; den Rest nicht als Soll zählen
+  let shortTimeFromAccount = 0;
+  let shortTimeUncovered = 0;
+  if (absence && ABSENCE_TYPES[absence.type].mode === 'debitCapped' && target > 0) {
+    const missing = Math.max(0, target - workedFinal);
+    shortTimeFromAccount = Math.min(missing, Math.max(0, account));
+    shortTimeUncovered = missing - shortTimeFromAccount;
+    target -= shortTimeUncovered;
+  }
+
   return {
     date,
     isWorkday,
@@ -220,6 +239,8 @@ export function daySummary(base: Project, date: DateKey, index: Index, now: numb
     worked: workedFinal,
     credit,
     target,
+    shortTimeFromAccount,
+    shortTimeUncovered,
     surcharges,
     surchargeAmounts,
     rate: project.hourlyRate,
@@ -234,6 +255,8 @@ export interface MonthSummary {
   credit: number;
   target: number;
   balance: number;
+  /** Kurzarbeit: vom Stundenkonto genommen / ohne Soll, weil das Konto leer war (Minuten). */
+  shortTime: { fromAccount: number; uncovered: number };
   workedDays: number;
   absenceCounts: Partial<Record<AbsenceType, number>>;
   /** `rule.percent` = Satz zum Monatsende (bei Änderung im Monat wird tageweise gerechnet). */
@@ -252,9 +275,21 @@ export function monthSummary(
   year: number,
   month0: number,
   now: number,
+  /** Stundenkonto zu Monatsbeginn (Minuten); ohne Angabe wird es bei Kurzarbeit im Monat berechnet. */
+  accountAtStart?: number,
 ): MonthSummary {
   const index = buildIndex(state, project.id);
-  const days = daysOfMonth(year, month0).map((d) => daySummary(project, d, index, now));
+  const ym = `${year}-${pad(month0 + 1)}`;
+  const hasShortTime = state.absences.some(
+    (a) => a.projectId === project.id && a.date.startsWith(ym) && ABSENCE_TYPES[a.type].mode === 'debitCapped',
+  );
+  // Kontostand Tag für Tag mitführen, damit Kurzarbeit nie ins Minus führt
+  let account = accountAtStart ?? (hasShortTime ? accountBeforeMonth(state, project, year, month0, now) : 0);
+  const days = daysOfMonth(year, month0).map((d) => {
+    const day = daySummary(project, d, index, now, account);
+    account += day.worked + day.credit - day.target;
+    return day;
+  });
   const worked = days.reduce((a, d) => a + d.worked, 0);
   const credit = days.reduce((a, d) => a + d.credit, 0);
   const target = days.reduce((a, d) => a + d.target, 0);
@@ -275,6 +310,10 @@ export function monthSummary(
     credit,
     target,
     balance: worked + credit - target,
+    shortTime: {
+      fromAccount: days.reduce((a, d) => a + d.shortTimeFromAccount, 0),
+      uncovered: days.reduce((a, d) => a + d.shortTimeUncovered, 0),
+    },
     workedDays: days.filter((d) => d.sessions.length > 0).length,
     absenceCounts,
     surcharges,

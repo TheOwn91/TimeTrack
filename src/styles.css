@@ -927,6 +927,9 @@ html {
   gap: 0.5rem;
   font-size: 0.9rem;
 }
+.month-extra > div > :last-child {
+  white-space: nowrap;
+}
 /* Einstellungen als Liste: Beschriftung links, gleich breite Felder rechts */
 .field-list {
   display: flex;

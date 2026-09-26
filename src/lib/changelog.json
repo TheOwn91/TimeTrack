@@ -1,12 +1,22 @@
 [
   {
+    "version": "0.11.0",
+    "date": "26.09.2026",
+    "changes": [
+      "Kurzarbeit geht jetzt wie Überstundenausgleich vom Stundenkonto ab",
+      "Ist das Stundenkonto leer, entfällt an Kurzarbeitstagen das Soll – es entstehen keine Minusstunden",
+      "Monatsübersicht und PDF zeigen, wie viel Kurzarbeit vom Konto genommen wurde"
+    ]
+  },
+  {
     "version": "0.10.0",
     "date": "26.09.2026",
     "changes": [
       "„Nachtschicht dem Folgetag zuordnen“ gibt es jetzt für jeden Arbeitgeber (Einstellungen)",
       "Die Option verschiebt nur Schichten, die ab 18 Uhr beginnen – Früh- und Tagesschichten bleiben an ihrem Tag",
       "Tages-Editor: Ende und Pausen werden ab dem echten Schichtbeginn gerechnet"
-    ]
+    ],
+    "commit": "8aa6a70fbfde1b7997ac18c56e435450ebd9339e"
   },
   {
     "version": "0.9.0",

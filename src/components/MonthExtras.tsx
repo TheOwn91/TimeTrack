@@ -30,6 +30,18 @@ export function MonthExtras({ month, year, vacationRemaining, complete }: Props)
         <span>Resturlaub {year}</span>
         <span>{fmtDays(vacationRemaining)} Tage</span>
       </div>
+      {month.shortTime.fromAccount + month.shortTime.uncovered > 0 && (
+        <div className="muted small">
+          <span>Kurzarbeit vom Stundenkonto</span>
+          <span>{hours(-month.shortTime.fromAccount)} h</span>
+        </div>
+      )}
+      {month.shortTime.uncovered > 0 && (
+        <div className="muted small">
+          <span>Kurzarbeit ohne Soll</span>
+          <span>{hours(month.shortTime.uncovered)} h</span>
+        </div>
+      )}
       {pct > 0 && (
         <div className="muted small">
           <span>

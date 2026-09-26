@@ -42,8 +42,9 @@ Einmalig nötig: im Repository unter *Settings → Pages → Source* „GitHub A
 
 | Schlüssel | Wirkung |
 |---|---|
-| Urlaub, Krank, Kurzarbeit, Feiertag, Sonstiges (bezahlt) | Tagessoll wird gutgeschrieben |
+| Urlaub, Krank, Feiertag, Sonstiges (bezahlt) | Tagessoll wird gutgeschrieben |
 | Überstundenausgleich | Soll bleibt, wird vom Stundenkonto abgezogen |
+| Kurzarbeit | wie Überstundenausgleich, aber nur solange das Stundenkonto Plusstunden hat – ist es leer, entfällt das Soll (keine Minusstunden) |
 | Frei | Tag hat kein Soll |
 
 ## Entwicklung

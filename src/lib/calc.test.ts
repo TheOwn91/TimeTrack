@@ -161,12 +161,68 @@ describe('Monat und fehlende Tage', () => {
     const sum = monthSummary(st, project, 2026, 8, combine('2026-09-04', '20:00'));
     // 1.9.: 10 h brutto − 45 min gesetzliche Pause = 9:15
     expect(sum.worked).toBe(555);
-    // Urlaub (2.9.) und Kurzarbeit (3.9.) schreiben das Tagessoll gut
-    expect(sum.credit).toBe(2 * 480);
-    // Soll: 1.–4.9.; Überstundenausgleich (4.9.) geht vom Konto ab
-    expect(sum.target).toBe(4 * 480);
-    expect(sum.balance).toBe(555 + 960 - 1920);
+    // Urlaub (2.9.) schreibt das Tagessoll gut
+    expect(sum.credit).toBe(480);
+    // Kurzarbeit (3.9.) nimmt nur die 1:15 Plusstunden vom 1.9., der Rest des Solls entfällt
+    expect(sum.shortTime).toEqual({ fromAccount: 75, uncovered: 405 });
+    // Soll: 1., 2., 4.9. voll + 1:15 am 3.9.; Überstundenausgleich (4.9.) geht vom Konto ab (auch ins Minus)
+    expect(sum.target).toBe(3 * 480 + 75);
+    expect(sum.balance).toBe(555 + 480 - 1515);
     expect(sum.absenceCounts).toEqual({ urlaub: 1, kurzarbeit: 1, ueberstunden: 1 });
+  });
+
+  describe('Kurzarbeit wie Überstundenausgleich, aber nie ins Minus', () => {
+    const later = combine('2026-10-20', '12:00');
+    const ka = (...dates: string[]) => dates.map((date, i) => ({ id: `k${i}`, projectId: 'p', date, type: 'kurzarbeit' as const }));
+
+    it('nimmt das Soll vom Stundenkonto, solange Plusstunden da sind', () => {
+      const p = { ...project, overtimeAtStartHours: 20 };
+      const sum = monthSummary(state({ projects: [p], absences: ka('2026-09-01', '2026-09-02') }), p, 2026, 8, combine('2026-09-02', '20:00'));
+      expect(sum.shortTime).toEqual({ fromAccount: 960, uncovered: 0 });
+      expect(sum.balance).toBe(-960);
+    });
+
+    it('ohne Plusstunden entstehen keine Minusstunden', () => {
+      const sum = monthSummary(state({ absences: ka('2026-09-01', '2026-09-02') }), project, 2026, 8, combine('2026-09-02', '20:00'));
+      expect(sum.shortTime).toEqual({ fromAccount: 0, uncovered: 960 });
+      expect(sum.target).toBe(0);
+      expect(sum.balance).toBe(0);
+    });
+
+    it('teilweise gedeckt: nur bis das Konto leer ist', () => {
+      const p = { ...project, overtimeAtStartHours: 10 };
+      const sum = monthSummary(state({ projects: [p], absences: ka('2026-09-01', '2026-09-02') }), p, 2026, 8, combine('2026-09-02', '20:00'));
+      expect(sum.shortTime).toEqual({ fromAccount: 600, uncovered: 360 });
+      expect(sum.balance).toBe(-600);
+    });
+
+    it('nutzt Überstunden aus dem Vormonat', () => {
+      const st = state({
+        // 1.9.: 10 h − 45 min Pause = 9:15 → +1:15
+        sessions: [{ id: 'a', projectId: 'p', start: combine('2026-09-01', '08:00'), end: combine('2026-09-01', '18:00'), pauses: [] }],
+        absences: [
+          ...ka('2026-10-01'),
+          // restliche Septembertage frei, damit kein Minus entsteht
+          ...Array.from({ length: 29 }, (_, i) => ({ id: `f${i}`, projectId: 'p', date: `2026-09-${String(i + 2).padStart(2, '0')}`, type: 'frei' as const })),
+        ],
+      });
+      const oct = monthSummary(st, project, 2026, 9, later);
+      expect(oct.shortTime.fromAccount).toBe(75);
+      expect(oct.days[0].target).toBe(75);
+    });
+
+    it('bei Teilarbeit wird nur die fehlende Zeit gerechnet', () => {
+      const p = { ...project, autoBreak: false, overtimeAtStartHours: 1 };
+      const st = state({
+        projects: [p],
+        sessions: [{ id: 'a', projectId: 'p', start: combine('2026-09-01', '08:00'), end: combine('2026-09-01', '12:00'), pauses: [] }],
+        absences: ka('2026-09-01'),
+      });
+      const sum = monthSummary(st, p, 2026, 8, combine('2026-09-01', '20:00'));
+      // 4 h gearbeitet, 4 h fehlen: 1 h vom Konto, 3 h ohne Soll
+      expect(sum.shortTime).toEqual({ fromAccount: 60, uncovered: 180 });
+      expect(sum.balance).toBe(-60);
+    });
   });
 
   it('setzt für heute erst ein Soll an, wenn etwas erfasst ist', () => {
