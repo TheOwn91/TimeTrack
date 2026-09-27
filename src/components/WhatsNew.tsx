@@ -9,6 +9,26 @@ interface Props {
   afterUpdate: boolean;
 }
 
+/** Änderungen je Version, neueste zuerst (auch in der Update-Vorschau). */
+export function ReleaseList({ releases }: { releases: Release[] }) {
+  return (
+    <div className="release-list">
+      {releases.map((r) => (
+        <section key={r.version}>
+          <h3>
+            Version {r.version} <span className="muted small">· {r.date}</span>
+          </h3>
+          <ul>
+            {r.changes.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+}
+
 /** „Was ist neu?“ – erscheint nach einem Update beim ersten Start der neuen Version. */
 export function WhatsNew({ releases, onClose, afterUpdate }: Props) {
   const [dontShow, setDontShow] = useState(false);
@@ -21,20 +41,7 @@ export function WhatsNew({ releases, onClose, afterUpdate }: Props) {
 
   return (
     <Modal title={title} onClose={close}>
-      <div className="release-list">
-        {releases.map((r) => (
-          <section key={r.version}>
-            <h3>
-              Version {r.version} <span className="muted small">· {r.date}</span>
-            </h3>
-            <ul>
-              {r.changes.map((c) => (
-                <li key={c}>{c}</li>
-              ))}
-            </ul>
-          </section>
-        ))}
-      </div>
+      <ReleaseList releases={releases} />
       {afterUpdate && (
         <label className="checkbox toggle-row">
           <input id="whatsnew-off" type="checkbox" checked={dontShow} onChange={(e) => setDontShow(e.target.checked)} />

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { APP_VERSION, IN_DEVELOPMENT, setUpdateNotesEnabled, updateNotesEnabled } from '../lib/changelog';
 import {
-  applyUpdate,
   autoUpdateEnabled,
   checkForUpdates,
   getUpdateStatus,
   onUpdateStatus,
+  openUpdatePreview,
   setAutoUpdateEnabled,
   updateSupported,
   type UpdateStatus,
@@ -64,7 +64,7 @@ export function VersionCard({ onShowWhatsNew }: { onShowWhatsNew: () => void }) 
       <p className="muted small">
         {auto
           ? 'Neue Versionen werden im Hintergrund geladen und beim nächsten Öffnen installiert.'
-          : 'Neue Versionen werden erst installiert, wenn du auf „Jetzt aktualisieren“ tippst.'}
+          : 'Neue Versionen werden erst installiert, wenn du auf „Jetzt aktualisieren“ tippst – vorher siehst du, was neu ist.'}
       </p>
 
       <div className="update-actions">
@@ -72,7 +72,7 @@ export function VersionCard({ onShowWhatsNew }: { onShowWhatsNew: () => void }) 
           Auf Updates prüfen
         </button>
         {status.state === 'available' && (
-          <button className="btn primary" onClick={() => void applyUpdate()}>
+          <button className="btn primary" onClick={openUpdatePreview}>
             Jetzt aktualisieren
           </button>
         )}
@@ -81,13 +81,6 @@ export function VersionCard({ onShowWhatsNew }: { onShowWhatsNew: () => void }) 
         <p className={`small update-status ${status.state === 'available' ? 'highlight' : 'muted'}`} role="status">
           {text}
         </p>
-      )}
-      {status.state === 'available' && status.release && (
-        <ul className="small update-preview">
-          {status.release.changes.map((c) => (
-            <li key={c}>{c}</li>
-          ))}
-        </ul>
       )}
 
       <label className="checkbox toggle-row">

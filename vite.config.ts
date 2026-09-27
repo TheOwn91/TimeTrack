@@ -25,8 +25,10 @@ function serviceWorker(): Plugin {
       }
       const version = hash.digest('hex').slice(0, 12);
       // Aktuelle Version für „Auf Updates prüfen“ (wird nie aus dem Cache geliefert)
-      const [latest] = JSON.parse(readFileSync('src/lib/changelog.json', 'utf8'));
-      this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify(latest) });
+      // `history`: letzte Einträge, damit die App vor einem Update alle Neuerungen zeigen kann
+      const releases = JSON.parse(readFileSync('src/lib/changelog.json', 'utf8')) as { commit?: string }[];
+      const history = releases.slice(0, 30).map(({ commit: _commit, ...r }) => r);
+      this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ ...history[0], history }) });
       this.emitFile({
         type: 'asset',
         fileName: 'sw.js',
