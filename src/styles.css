@@ -508,12 +508,20 @@ h3 {
   flex-direction: column;
   line-height: 1.15;
 }
+/* Mehrere Buchungen und Hinweise eines Tages stehen untereinander */
 .day-info {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem 0.6rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-width: 0;
   font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
+}
+/* „−1“/„+1“ (Vortag/Folgetag) ohne Einfluss auf die Zeilenhöhe */
+.day-info sup {
+  line-height: 0;
+  font-size: 0.7em;
 }
 .day-hours {
   display: flex;
