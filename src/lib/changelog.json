@@ -1,5 +1,14 @@
 [
   {
+    "version": "0.12.1",
+    "date": "27.09.2026",
+    "changes": [
+      "Beim ersten „Zeit starten“ fragt zuerst die App, ob die Statusleisten-Anzeige gewünscht ist – die Abfrage des Handys kommt nur nach „Erlauben“",
+      "Nach „Nicht jetzt“ fragt die App nicht bei jedem Start erneut (einschalten unter Einstellungen → Statusleiste)",
+      "Nach dem Erlauben erscheint die Anzeige sofort"
+    ]
+  },
+  {
     "version": "0.12.0",
     "date": "27.09.2026",
     "changes": [
@@ -7,7 +16,8 @@
       "Übersprungene Versionen erscheinen in der Vorschau mit (z. B. von 0.10.0 direkt auf 0.12.0)",
       "Nach einem so bestätigten Update erscheint „Was ist neu?“ nicht noch einmal",
       "Rückfragen (z. B. „Buchung wirklich löschen?“) erscheinen als eigenes Fenster der App – ohne „Auf … wird Folgendes angezeigt“"
-    ]
+    ],
+    "commit": "4920077d2f975b2ea5b37d5ce1145dbb30363e70"
   },
   {
     "version": "0.11.0",

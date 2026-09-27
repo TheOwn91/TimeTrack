@@ -8,6 +8,7 @@ export function ConfirmHost() {
   const confirmRef = useRef<HTMLButtonElement>(null);
 
   const close = (ok: boolean) => {
+    if (ok) current.current?.onConfirm?.();
     current.current?.resolve(ok);
     current.current = null;
     setRequest(null);
@@ -42,9 +43,10 @@ export function ConfirmHost() {
     <div className="confirm-backdrop" onClick={() => close(false)}>
       <div className="confirm-dialog" role="alertdialog" aria-modal aria-describedby="confirm-message" onClick={(e) => e.stopPropagation()}>
         <p id="confirm-message">{request.message}</p>
+        {request.detail && <p className="muted small confirm-detail">{request.detail}</p>}
         <div className="confirm-actions">
           <button className="btn secondary" onClick={() => close(false)}>
-            Abbrechen
+            {request.cancelLabel ?? 'Abbrechen'}
           </button>
           <button ref={confirmRef} className={`btn ${request.danger ? 'danger' : 'primary'}`} onClick={() => close(true)}>
             {request.confirmLabel ?? 'OK'}

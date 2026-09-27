@@ -1271,6 +1271,12 @@ html {
   font-size: 1.05rem;
   overflow-wrap: anywhere;
 }
+.confirm-dialog p:has(+ .confirm-detail) {
+  margin-bottom: 0.5rem;
+}
+.confirm-dialog .confirm-detail {
+  font-size: 0.85rem;
+}
 .confirm-actions {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
