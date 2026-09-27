@@ -229,7 +229,8 @@ function ProjectForm({ project }: { project: Project }) {
 
 export function Projects({ onShowWhatsNew, onNewEmployer }: { onShowWhatsNew: () => void; onNewEmployer: (name: string) => void }) {
   const { state, replace } = useStore();
-  const [openId, setOpenId] = useState<string | null>(state.selectedProjectId ?? null);
+  // Arbeitgeber sind anfangs eingeklappt – Antippen öffnet die Einstellungen
+  const [openId, setOpenId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -270,7 +271,11 @@ export function Projects({ onShowWhatsNew, onNewEmployer }: { onShowWhatsNew: ()
 
       {state.projects.map((p) => (
         <section key={p.id} className={`card project-card ${p.archived ? 'archived' : ''}`}>
-          <button className="project-head" onClick={() => setOpenId(openId === p.id ? null : p.id)}>
+          <button
+            className="project-head"
+            aria-expanded={openId === p.id}
+            onClick={() => setOpenId(openId === p.id ? null : p.id)}
+          >
             <span className="dot" style={{ background: p.color }} />
             <strong className="grow">{p.name || 'Ohne Namen'}</strong>
             {p.archived && <span className="muted small">archiviert</span>}

@@ -42,9 +42,11 @@ export function DayEditor({ project, date, onClose }: Props) {
 
   const addSession = () => {
     const last = day.sessions[day.sessions.length - 1];
-    // Bei „Nachtschicht dem Folgetag zuordnen“ beginnt die Schicht am Vorabend
-    const startHm = shiftsToNextDay(project) ? '21:30' : '08:00';
-    const startTs = last?.end ? last.end + 30 * MINUTE : combine(workDate(project, date, startHm), startHm);
+    // Beginn: aktuelle Uhrzeit am angezeigten Tag (ab 18 Uhr bei „Nachtschicht dem Folgetag zuordnen“
+    // am Vortag). Würde das eine vorhandene Buchung überschneiden, 30 min nach deren Ende.
+    const startHm = fmtTime(Date.now());
+    let startTs = combine(workDate(project, date, startHm), startHm);
+    if (last && startTs < (last.end ?? now)) startTs = (last.end ?? now) + 30 * MINUTE;
     const workMin = Math.round(terms.dailyTargetHours * 60);
     const pauses = !last && workMin > 360 ? [{ start: startTs + 240 * MINUTE, end: startTs + 270 * MINUTE }] : [];
     const endTs = startTs + (workMin + (pauses.length ? 30 : 0)) * MINUTE;
