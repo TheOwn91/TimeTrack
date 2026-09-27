@@ -3,7 +3,8 @@ import { ABSENCE_TYPES } from '../lib/absences';
 import { DEMO } from '../lib/demo';
 import { sessionDay } from '../lib/shift';
 import { isStandalone } from '../lib/device';
-import { notifyEnabled, requestNotifyPermission } from '../lib/status';
+import { ask } from '../lib/confirm';
+import { notifyEnabled, notifySupport, requestNotifyPermission, setNotifyEnabled, syncRunningStatus } from '../lib/status';
 import { buildIndex, daySummary, monthSummary, sessionStats, untrackedDays } from '../lib/calc';
 import { useHours, useNow, useStore } from '../lib/store';
 import { MONTHS, dateKey, fmtClock, fmtDate, fmtDuration, fmtMoney, fmtTime, uid } from '../lib/time';
@@ -68,11 +69,24 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
   const missing = untrackedDays(state, project, now);
 
   const start = () => {
+    const session = { id: uid(), projectId: project.id, start: Date.now(), pauses: [] };
     update((s) => {
-      s.sessions.push({ id: uid(), projectId: project.id, start: Date.now(), pauses: [] });
+      s.sessions.push(session);
     });
-    // Beim ersten Start fragen, ob die App eine „Zeit läuft“-Benachrichtigung zeigen darf
-    if (notifyEnabled()) void requestNotifyPermission();
+    // Beim ersten Start fragen, ob die App eine „Zeit läuft“-Benachrichtigung zeigen darf –
+    // erst in der App, die Abfrage des Browsers kommt nur nach „Erlauben“
+    if (notifyEnabled() && notifySupport() === 'ask') {
+      void ask('Soll TimeTrack in der Statusleiste anzeigen, dass die Zeit läuft?', {
+        detail: 'Nach „Erlauben“ fragt dein Handy einmal nach der Erlaubnis. Ändern kannst du das jederzeit unter Einstellungen → Statusleiste.',
+        confirmLabel: 'Erlauben',
+        cancelLabel: 'Nicht jetzt',
+        // Nach der Erlaubnis die Anzeige gleich zeigen, nicht erst beim nächsten Tipp
+        onConfirm: () =>
+          void requestNotifyPermission().then(
+            (granted) => granted && void syncRunningStatus({ ...state, sessions: [...state.sessions, session] }, true),
+          ),
+      }).then((ok) => !ok && setNotifyEnabled(false));
+    }
   };
   const togglePause = () =>
     update((s) => {

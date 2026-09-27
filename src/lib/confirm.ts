@@ -2,8 +2,17 @@
 export interface AskOptions {
   /** Beschriftung des Bestätigen-Knopfs (Standard „OK“). */
   confirmLabel?: string;
+  /** Beschriftung des Abbrechen-Knopfs (Standard „Abbrechen“). */
+  cancelLabel?: string;
+  /** Kleiner Zusatztext unter der Frage. */
+  detail?: string;
   /** Bestätigen-Knopf rot (für Löschen). */
   danger?: boolean;
+  /**
+   * Läuft direkt im Tipp auf „Bestätigen“ – für Browser-Funktionen, die nur aus einem Tipp heraus
+   * erlaubt sind (z. B. die Benachrichtigungs-Erlaubnis auf dem iPhone).
+   */
+  onConfirm?: () => void;
 }
 
 export interface AskRequest extends AskOptions {
