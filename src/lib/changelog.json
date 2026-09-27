@@ -1,12 +1,21 @@
 [
   {
+    "version": "0.12.2",
+    "date": "27.09.2026",
+    "changes": [
+      "Pause: Lange Lücken zwischen zwei Buchungen am selben Tag (über 2 Stunden) zählen nicht mehr als Pause, sondern erscheinen als „Unterbrechung“",
+      "Monatsansicht: Mehrere Zeiten eines Tages stehen untereinander statt versetzt nebeneinander"
+    ]
+  },
+  {
     "version": "0.12.1",
     "date": "27.09.2026",
     "changes": [
       "Beim ersten „Zeit starten“ fragt zuerst die App, ob die Statusleisten-Anzeige gewünscht ist – die Abfrage des Handys kommt nur nach „Erlauben“",
       "Nach „Nicht jetzt“ fragt die App nicht bei jedem Start erneut (einschalten unter Einstellungen → Statusleiste)",
       "Nach dem Erlauben erscheint die Anzeige sofort"
-    ]
+    ],
+    "commit": "8fed10d0910beb99ab4f576608ddc1b1643ae4b9"
   },
   {
     "version": "0.12.0",
