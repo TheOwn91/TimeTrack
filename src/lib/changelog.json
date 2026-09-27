@@ -1,12 +1,21 @@
 [
   {
+    "version": "0.11.1",
+    "date": "27.09.2026",
+    "changes": [
+      "Rückfragen (z. B. „Buchung wirklich löschen?“) erscheinen jetzt als eigenes Fenster der App – ohne „Auf … wird Folgendes angezeigt“",
+      "Löschen-Knöpfe in Rückfragen sind rot, „Abbrechen“ steht immer links"
+    ]
+  },
+  {
     "version": "0.11.0",
     "date": "26.09.2026",
     "changes": [
       "Kurzarbeit geht jetzt wie Überstundenausgleich vom Stundenkonto ab",
       "Ist das Stundenkonto leer, entfällt an Kurzarbeitstagen das Soll – es entstehen keine Minusstunden",
       "Monatsübersicht und PDF zeigen, wie viel Kurzarbeit vom Konto genommen wurde"
-    ]
+    ],
+    "commit": "3d35b9a4911caad66ab95a5e8d0d353d638bad36"
   },
   {
     "version": "0.10.0",

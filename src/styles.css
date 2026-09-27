@@ -1251,3 +1251,33 @@ html {
 .delete-confirm strong {
   color: var(--danger);
 }
+
+/* Eigene Rückfrage (statt Browser-Dialog), liegt über allen Fenstern */
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 70;
+}
+.confirm-dialog {
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: min(360px, 100%);
+  padding: 1.25rem 1rem 1rem;
+  box-shadow: 0 10px 40px rgb(0 0 0 / 0.3);
+}
+.confirm-dialog p {
+  margin: 0 0 1.25rem;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+.confirm-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.5rem;
+}

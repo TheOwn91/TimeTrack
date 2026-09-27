@@ -6,6 +6,7 @@ import { SetupWizard } from './components/SetupWizard';
 import { WhatsNew } from './components/WhatsNew';
 import { YearView } from './components/YearView';
 import { CHANGELOG, pendingReleaseNotes, type Release } from './lib/changelog';
+import { ConfirmHost } from './components/ConfirmHost';
 import { DEMO, demoState } from './lib/demo';
 import { syncRunningStatus } from './lib/status';
 import { useStore } from './lib/store';
@@ -115,6 +116,7 @@ export function App() {
       {!wizard && whatsNew && (
         <WhatsNew releases={whatsNew.releases} afterUpdate={whatsNew.afterUpdate} onClose={() => setWhatsNew(null)} />
       )}
+      <ConfirmHost />
       {notice && (
         <div className="toast" role="status" onClick={() => setNotice(null)}>
           {notice}

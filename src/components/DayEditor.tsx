@@ -1,6 +1,6 @@
 import { ABSENCE_ORDER, ABSENCE_TYPES } from '../lib/absences';
 import { buildIndex, daySummary } from '../lib/calc';
-import { ask } from '../lib/demo';
+import { ask } from '../lib/confirm';
 import { shiftsToNextDay, workDate } from '../lib/shift';
 import { projectAt } from '../lib/terms';
 import { useNow, useStore } from '../lib/store';
@@ -56,8 +56,8 @@ export function DayEditor({ project, date, onClose }: Props) {
     });
   };
 
-  const removeSession = (id: string) => {
-    if (!ask('Buchung wirklich löschen?')) return;
+  const removeSession = async (id: string) => {
+    if (!(await ask('Buchung wirklich löschen?', { confirmLabel: 'Löschen', danger: true }))) return;
     update((d) => {
       d.sessions = d.sessions.filter((s) => s.id !== id);
     });
@@ -75,7 +75,7 @@ export function DayEditor({ project, date, onClose }: Props) {
           <div key={s.id} className="session-edit">
             <div className="row">
               <span className="label">Buchung {i + 1}</span>
-              <button className="link danger" onClick={() => removeSession(s.id)}>
+              <button className="link danger" onClick={() => void removeSession(s.id)}>
                 Löschen
               </button>
             </div>
