@@ -9,7 +9,7 @@ App zur Erfassung von Arbeitszeiten, die **lokal auf dem Handy** läuft (Android
    **Android:** im Chrome-Menü (⋮) auf *App installieren*.
 3. Fertig – ab jetzt vom Homescreen starten, Internet wird nicht mehr benötigt.
 
-Updates werden automatisch geladen und beim Öffnen installiert. Unter „Einstellungen → App-Version & Updates“ lässt sich das abschalten; dann gibt es „Auf Updates prüfen“ und „Jetzt aktualisieren“. Nach jedem Update zeigt die App, was neu ist.
+Updates werden automatisch geladen und beim Öffnen installiert. Unter „Einstellungen → App-Version & Updates“ lässt sich das abschalten; dann gibt es „Auf Updates prüfen“ und „Jetzt aktualisieren“. „Jetzt aktualisieren“ zeigt zuerst, was neu ist (auch übersprungene Versionen); installiert wird erst nach „Jetzt installieren“. Nach automatischen Updates zeigt die App beim nächsten Start, was neu ist.
 Der PDF-Monatsbericht und die Datensicherung öffnen auf dem Handy das Teilen-Menü (in Dateien speichern, per Mail/Messenger senden).
 
 > Hinweis: Wird die App bzw. werden die Website-Daten im Browser gelöscht, sind auch die Zeiten weg. Deshalb regelmäßig eine Sicherung exportieren.

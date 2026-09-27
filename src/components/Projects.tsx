@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { ask, notify } from '../lib/demo';
+import { ask } from '../lib/confirm';
+import { notify } from '../lib/demo';
 import { shareOrDownload } from '../lib/device';
 import { STATES } from '../lib/holidays';
 import { PROJECT_COLORS, useStore, validateState } from '../lib/store';
@@ -208,8 +209,9 @@ function ProjectForm({ project }: { project: Project }) {
         </button>
         <button
           className="btn danger"
-          onClick={() => {
-            if (!ask(`„${project.name}“ und alle zugehörigen Zeiten endgültig löschen?`)) return;
+          onClick={async () => {
+            const ok = await ask(`„${project.name}“ und alle zugehörigen Zeiten endgültig löschen?`, { confirmLabel: 'Löschen', danger: true });
+            if (!ok) return;
             update((d) => {
               d.projects = d.projects.filter((p) => p.id !== project.id);
               d.sessions = d.sessions.filter((s) => s.projectId !== project.id);
@@ -239,7 +241,7 @@ export function Projects({ onShowWhatsNew, onNewEmployer }: { onShowWhatsNew: ()
   const importBackup = async (file: File) => {
     try {
       const data = validateState(JSON.parse(await file.text()));
-      if (!ask('Alle aktuellen Daten durch die Sicherung ersetzen?')) return;
+      if (!(await ask('Alle aktuellen Daten durch die Sicherung ersetzen?', { confirmLabel: 'Ersetzen', danger: true }))) return;
       replace(data);
     } catch (e) {
       notify(`Import fehlgeschlagen: ${(e as Error).message}`);

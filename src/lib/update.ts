@@ -1,15 +1,20 @@
-import { APP_VERSION, type Release } from './changelog';
+import { APP_VERSION, releasesForUpdate, type LatestRelease, type Release } from './changelog';
 import { DEMO } from './demo';
 
 /**
  * Updates der installierten App über den Service Worker:
- * - automatisch (Standard): ein neues Update wird aktiviert, sobald es geladen ist
- * - manuell: das Update wartet, bis „Jetzt aktualisieren“ getippt wird
- * Nach dem Update lädt die App neu und zeigt „Was ist neu?“.
+ * - automatisch (Standard): ein neues Update wird aktiviert, sobald es geladen ist; danach zeigt
+ *   die App „Was ist neu?“
+ * - manuell: „Jetzt aktualisieren“ zeigt zuerst die Änderungen, installiert wird erst nach dem
+ *   Bestätigen (danach kein zweites „Was ist neu?“)
  */
 
 const AUTO_KEY = 'timetrack.autoUpdate';
+/** Von Versionen bis 0.11.1 gesetzt: nach dem Update „Was ist neu?“ auf jeden Fall zeigen. */
 const SHOW_NOTES_KEY = 'timetrack.showNotesAfterUpdate';
+/** Änderungen wurden schon vor dem Update gezeigt. */
+const NOTES_SHOWN_KEY = 'timetrack.notesShownBeforeUpdate';
+export const UPDATE_PREVIEW_EVENT = 'timetrack-update-preview';
 
 export type UpdateStatus =
   | { state: 'idle' }
@@ -59,14 +64,37 @@ export function setAutoUpdateEnabled(on: boolean) {
   if (on && status.state === 'available') void applyUpdate(false);
 }
 
-/** Nach einem Update per Knopf „Was ist neu?“ auf jeden Fall zeigen (auch wenn abgeschaltet). */
-export function consumeForcedReleaseNotes(): boolean {
+function consumeFlag(key: string): boolean {
   try {
-    const v = sessionStorage.getItem(SHOW_NOTES_KEY) === '1';
-    sessionStorage.removeItem(SHOW_NOTES_KEY);
+    const v = sessionStorage.getItem(key) === '1';
+    sessionStorage.removeItem(key);
     return v;
   } catch {
     return false;
+  }
+}
+
+/** Nach einem Update per Knopf aus einer älteren Version „Was ist neu?“ auf jeden Fall zeigen. */
+export function consumeForcedReleaseNotes(): boolean {
+  return consumeFlag(SHOW_NOTES_KEY);
+}
+
+/** Wurden die Änderungen schon vor dem Update gezeigt? Dann nach dem Neustart nicht noch einmal. */
+export function consumeNotesShownBeforeUpdate(): boolean {
+  return consumeFlag(NOTES_SHOWN_KEY);
+}
+
+/** „Jetzt aktualisieren“: öffnet die Vorschau mit den Änderungen (siehe UpdatePreview). */
+export function openUpdatePreview() {
+  window.dispatchEvent(new CustomEvent(UPDATE_PREVIEW_EVENT));
+}
+
+/** Änderungen des bereitstehenden Updates (vom Server, sonst was beim Prüfen gemerkt wurde). */
+export async function fetchUpdateNotes(): Promise<Release[]> {
+  try {
+    return releasesForUpdate(await fetchLatest());
+  } catch {
+    return status.state === 'available' && status.release ? [status.release] : [];
   }
 }
 
@@ -76,10 +104,10 @@ async function registration(): Promise<ServiceWorkerRegistration | undefined> {
 }
 
 /** Neuester Stand auf dem Server (ohne Cache). */
-async function fetchLatest(): Promise<Release | undefined> {
+async function fetchLatest(): Promise<LatestRelease> {
   const res = await fetch(`./version.json?t=${Date.now()}`, { cache: 'no-store' });
   if (!res.ok) throw new Error(String(res.status));
-  return (await res.json()) as Release;
+  return (await res.json()) as LatestRelease;
 }
 
 function waitForInstalled(worker: ServiceWorker, timeoutMs = 30_000): Promise<void> {
@@ -116,7 +144,7 @@ export async function checkForUpdates(): Promise<UpdateStatus> {
     return status;
   }
   setStatus({ state: 'checking' });
-  let latest: Release | undefined;
+  let latest: LatestRelease | undefined;
   try {
     latest = await fetchLatest();
   } catch {
@@ -144,17 +172,26 @@ export async function checkForUpdates(): Promise<UpdateStatus> {
 }
 
 /**
- * Installiert das bereitstehende Update; die App lädt danach neu und zeigt „Was ist neu?“.
- * `manual`: per Knopf ausgelöst → Änderungen auch zeigen, wenn die Meldung abgeschaltet ist.
+ * Installiert das bereitstehende Update; die App lädt danach neu.
+ * `manual`: nach der Vorschau bestätigt → nach dem Neustart kein „Was ist neu?“ mehr
+ * (automatisch: „Was ist neu?“ erscheint wie eingestellt).
  */
 export async function applyUpdate(manual = true) {
   const reg = await registration();
   setStatus({ state: 'installing' });
   if (manual) {
     try {
-      sessionStorage.setItem(SHOW_NOTES_KEY, '1');
+      sessionStorage.setItem(NOTES_SHOWN_KEY, '1');
     } catch {
       /* ignorieren */
+    }
+  }
+  // Kennt der Server schon eine neuere Version, der Browser hat sie aber noch nicht geladen: jetzt laden
+  if (reg && !reg.waiting && !reg.installing) {
+    try {
+      await reg.update();
+    } catch {
+      /* offline – dann einfach neu laden */
     }
   }
   if (reg?.installing) await waitForInstalled(reg.installing);

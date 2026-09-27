@@ -5,11 +5,13 @@ import { Projects } from './components/Projects';
 import { SetupWizard } from './components/SetupWizard';
 import { WhatsNew } from './components/WhatsNew';
 import { YearView } from './components/YearView';
-import { CHANGELOG, pendingReleaseNotes, type Release } from './lib/changelog';
+import { CHANGELOG, markVersionSeen, pendingReleaseNotes, type Release } from './lib/changelog';
+import { ConfirmHost } from './components/ConfirmHost';
+import { UpdatePreview } from './components/UpdatePreview';
 import { DEMO, demoState } from './lib/demo';
 import { syncRunningStatus } from './lib/status';
 import { useStore } from './lib/store';
-import { applyUpdate, consumeForcedReleaseNotes, getUpdateStatus, onUpdateStatus } from './lib/update';
+import { consumeForcedReleaseNotes, consumeNotesShownBeforeUpdate, getUpdateStatus, onUpdateStatus, openUpdatePreview } from './lib/update';
 
 type Tab = 'home' | 'month' | 'year' | 'projects';
 
@@ -25,6 +27,11 @@ export function App() {
   const [notice, setNotice] = useState<string | null>(null);
   // „Was ist neu?“ nach einem Update (einmal beim Start ermittelt)
   const [whatsNew, setWhatsNew] = useState<{ releases: Release[]; afterUpdate: boolean } | null>(() => {
+    // Bei „Jetzt aktualisieren“ wurden die Änderungen schon vor dem Update gezeigt
+    if (consumeNotesShownBeforeUpdate()) {
+      markVersionSeen();
+      return null;
+    }
     const releases = pendingReleaseNotes(consumeForcedReleaseNotes());
     return releases.length ? { releases, afterUpdate: true } : null;
   });
@@ -83,7 +90,7 @@ export function App() {
           <span>
             Update{update.release ? ` auf ${update.release.version}` : ''} verfügbar
           </span>
-          <button className="btn primary" onClick={() => void applyUpdate()}>
+          <button className="btn primary" onClick={openUpdatePreview}>
             Jetzt aktualisieren
           </button>
         </div>
@@ -115,6 +122,8 @@ export function App() {
       {!wizard && whatsNew && (
         <WhatsNew releases={whatsNew.releases} afterUpdate={whatsNew.afterUpdate} onClose={() => setWhatsNew(null)} />
       )}
+      <UpdatePreview />
+      <ConfirmHost />
       {notice && (
         <div className="toast" role="status" onClick={() => setNotice(null)}>
           {notice}

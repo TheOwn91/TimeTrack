@@ -60,6 +60,17 @@ export function releasesSince(lastSeen: string | null, changelog = CHANGELOG): R
   return idx === -1 ? changelog.slice(0, 1) : changelog.slice(0, idx);
 }
 
+/** Inhalt von `version.json`: neueste Version, ab 0.11.2 mit den letzten Einträgen. */
+export type LatestRelease = Release & { history?: Release[] };
+
+/** Was bringt ein Update von `current` auf `latest`? Neueste zuerst, mindestens die neueste Version. */
+export function releasesForUpdate(latest: LatestRelease, current = APP_VERSION): Release[] {
+  const history = latest.history?.length ? latest.history : [latest];
+  const idx = history.findIndex((r) => r.version === current);
+  if (idx === 0) return [];
+  return idx === -1 ? history : history.slice(0, idx);
+}
+
 /**
  * Beim Start: Was ist seit dem letzten Start neu? Bei der allerersten Installation wird nichts
  * angezeigt, nur die Version gemerkt. In der Demo zählt der erste Besuch als Update.

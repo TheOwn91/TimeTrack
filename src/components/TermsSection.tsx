@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ask } from '../lib/demo';
+import { ask } from '../lib/confirm';
 import { useStore } from '../lib/store';
 import { BEGINNING, describeChanges, fmtFrom, fmtWorkdays, removeTerms, saveTerms, termsAt, termsList } from '../lib/terms';
 import { dateKey, fmtDuration, fmtMoney } from '../lib/time';
@@ -91,8 +91,9 @@ export function TermsSection({ project }: { project: Project }) {
           }}
           onDelete={
             editing.original && editing.original !== BEGINNING
-              ? () => {
-                  if (!ask('Diese Änderung löschen? Dann gelten wieder die vorherigen Werte.')) return;
+              ? async () => {
+                  const ok = await ask('Diese Änderung löschen? Dann gelten wieder die vorherigen Werte.', { confirmLabel: 'Löschen', danger: true });
+                  if (!ok) return;
                   edit((p) => removeTerms(p, editing.original!));
                   setEditing(null);
                 }

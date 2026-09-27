@@ -11,11 +11,6 @@ export function notify(message: string) {
   window.dispatchEvent(new CustomEvent('timetrack-notice', { detail: message }));
 }
 
-/** Rückfrage vor dem Löschen. In der Demo-Sandbox gibt es keine Dialoge. */
-export function ask(message: string): boolean {
-  return DEMO ? true : confirm(message);
-}
-
 function session(project: Project, date: string, from: string, to: string, pause?: [string, string], note?: string): Session {
   const start = combine(date, from);
   let end = combine(date, to);
