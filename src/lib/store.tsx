@@ -3,7 +3,7 @@ import { DEMO, demoState } from './demo';
 import { dateKey, fmtHours, uid } from './time';
 import type { AppState, Project, SurchargeRule } from './types';
 
-const STORAGE_KEY = DEMO ? 'timetrack.demo.v4' : 'timetrack.v1';
+const STORAGE_KEY = DEMO ? 'timetrack.demo.v3' : 'timetrack.v1';
 
 export const PROJECT_COLORS = ['#2563eb', '#16a34a', '#dc2626', '#9333ea', '#ea580c', '#0891b2', '#ca8a04', '#db2777'];
 
