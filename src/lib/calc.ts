@@ -99,6 +99,9 @@ export function surchargeMinutes(
   return result;
 }
 
+/** Lücken zwischen zwei Buchungen bis zu dieser Länge (Minuten) zählen als Pause, längere als Unterbrechung. */
+export const MAX_GAP_AS_PAUSE = 120;
+
 export interface DaySummary {
   date: DateKey;
   isWorkday: boolean;
@@ -108,8 +111,10 @@ export interface DaySummary {
   firstStart?: number;
   lastEnd?: number;
   running: boolean;
-  /** Erfasste Pausen inkl. Lücken zwischen Buchungen. */
+  /** Erfasste Pausen inkl. kurzer Lücken zwischen Buchungen (bis MAX_GAP_AS_PAUSE). */
   pause: number;
+  /** Längere Lücken zwischen Buchungen (z. B. geteilter Dienst) – keine Pause. */
+  interruption: number;
   /** Zusätzlich automatisch abgezogene Pause. */
   autoBreak: number;
   /** Netto-Arbeitszeit in Minuten. */
@@ -181,9 +186,24 @@ export function daySummary(base: Project, date: DateKey, index: Index, now: numb
     ? Math.max(...sessions.map((s) => s.end ?? now))
     : undefined;
   const running = sessions.some((s) => s.end === undefined);
-  // Pausen = Zeitspanne vom ersten Start bis zum letzten Ende minus Arbeitszeit
-  const pause = firstStart !== undefined && lastEnd !== undefined ? (lastEnd - firstStart) / MINUTE - worked : 0;
-  const autoBreak = project.autoBreak && !running ? autoBreakDeduction(worked, pause) : 0;
+  // Pausen = erfasste Pausen + Lücken zwischen den Buchungen; lange Lücken sind Unterbrechungen
+  let recordedPause = 0;
+  let shortGaps = 0;
+  let interruption = 0;
+  let cursor: number | undefined;
+  for (const s of sessions) {
+    const st = sessionStats(s, now);
+    recordedPause += st.pause;
+    if (cursor !== undefined && s.start > cursor) {
+      const gap = (s.start - cursor) / MINUTE;
+      if (gap <= MAX_GAP_AS_PAUSE) shortGaps += gap;
+      else interruption += gap;
+    }
+    cursor = Math.max(cursor ?? s.start, s.end ?? now);
+  }
+  const pause = recordedPause + shortGaps;
+  // Gesetzliche Mindestpause: jede Unterbrechung ab 15 min zählt als Ruhepause (§ 4 ArbZG), auch lange
+  const autoBreak = project.autoBreak && !running ? autoBreakDeduction(worked, pause + interruption) : 0;
   worked -= autoBreak;
 
   let target = isWorkday && !holiday ? project.dailyTargetHours * 60 : 0;
@@ -235,6 +255,7 @@ export function daySummary(base: Project, date: DateKey, index: Index, now: numb
     lastEnd,
     running,
     pause: Math.max(0, pause) + autoBreak,
+    interruption,
     autoBreak,
     worked: workedFinal,
     credit,

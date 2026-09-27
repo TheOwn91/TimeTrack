@@ -25,7 +25,7 @@ Einmalig nötig: im Repository unter *Settings → Pages → Source* „GitHub A
 - **Einrichtungs-Assistent** beim ersten Start und für neue Arbeitgeber (Arbeitszeit, Lohn, Zulagen, Startwerte; Installationshinweis nur, solange die App nicht installiert ist)
 - **Arbeitgeber / Projekte** anlegen mit Stundenlohn, Tagessoll, Arbeitstagen, Bundesland (Feiertage) und Zulagen-Regeln
 - **Start / Pause / Beenden** per Klick; die zuletzt gewählte Arbeit bleibt ausgewählt
-- **Pausen automatisch**: Pausen-Button, Lücken zwischen Buchungen eines Tages zählen als Pause, optional wird die gesetzliche Mindestpause (§ 4 ArbZG: > 6 h → 30 min, > 9 h → 45 min) abgezogen
+- **Pausen automatisch**: Pausen-Button, Lücken bis 2 h zwischen Buchungen eines Tages zählen als Pause (längere als Unterbrechung, z. B. bei geteiltem Dienst), optional wird die gesetzliche Mindestpause (§ 4 ArbZG: > 6 h → 30 min, > 9 h → 45 min) abgezogen
 - **Startseite**: Arbeitsauswahl, Timer, Monatsstunden (Ist / Soll bis heute / Saldo), aktuelle Zulagen, vergangene Arbeitstage ohne Erfassung mit Schnellauswahl (Urlaub, Krank, Überstundenausgleich, Kurzarbeit, Frei)
 - **Jahresübersicht**: Urlaub (Anspruch, Übertrag aus dem Vorjahr, genommen, geplant, Rest) und Überstundenkonto Monat für Monat. Resturlaub und Überstunden werden automatisch ins nächste Jahr übernommen.
 - **„Gültig ab“ für Vertragswerte**: Stundenlohn, Soll pro Tag, Arbeitstage und Zuschläge lassen sich ab einem Datum ändern; vergangene Tage rechnen weiter mit den alten Werten (Verlauf unter „Einstellungen → Lohn & Arbeitszeit“)

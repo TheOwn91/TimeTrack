@@ -194,6 +194,12 @@ export function DayEditor({ project, date, onClose }: Props) {
             <span className="muted">Pause</span>
             <strong>{fmtDuration(day.pause)} h</strong>
           </div>
+          {day.interruption > 0 && (
+            <div>
+              <span className="muted">Unterbrechung</span>
+              <strong>{fmtDuration(day.interruption)} h</strong>
+            </div>
+          )}
           {day.autoBreak > 0 && (
             <p className="muted small">
               Enthält {Math.round(day.autoBreak)} min automatisch abgezogene gesetzliche Pause.

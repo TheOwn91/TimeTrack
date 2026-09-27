@@ -61,8 +61,48 @@ describe('Arbeitszeit und Pausen', () => {
     });
     const d = daySummary(project, '2026-09-01', buildIndex(st, 'p'), combine('2026-09-02', '10:00'));
     expect(d.pause).toBe(45);
+    expect(d.interruption).toBe(0);
     expect(d.autoBreak).toBe(0);
     expect(d.worked).toBe(495);
+  });
+
+  it('lange Lücke zwischen zwei Buchungen ist eine Unterbrechung, keine Pause', () => {
+    // Nachtschicht 21:30–06:30 mit 30 min Pause, dann 15:00–18:00 (wie im geteilten Dienst)
+    const st = state({
+      sessions: [
+        {
+          id: 'n',
+          projectId: 'p',
+          start: combine('2026-09-01', '21:30'),
+          end: combine('2026-09-02', '06:30'),
+          pauses: [{ start: combine('2026-09-02', '01:30'), end: combine('2026-09-02', '02:00') }],
+        },
+        { id: 't', projectId: 'p', start: combine('2026-09-02', '15:00'), end: combine('2026-09-02', '18:00'), pauses: [] },
+      ],
+    });
+    const p = { ...project, autoBreak: false };
+    const idx = buildIndex(st, 'p');
+    // ohne Zuordnung zum Folgetag stehen beide Buchungen an verschiedenen Tagen – hier gezielt ein Tag
+    idx.sessionsByDay.set('2026-09-02', st.sessions);
+    const d = daySummary(p, '2026-09-02', idx, combine('2026-09-03', '10:00'));
+    expect(d.worked).toBe(690); // 8:30 + 3:00
+    expect(d.pause).toBe(30);
+    expect(d.interruption).toBe(510); // 06:30–15:00
+  });
+
+  it('gesetzliche Mindestpause: lange Unterbrechung zählt als Ruhepause', () => {
+    const st = state({
+      sessions: [
+        { id: 'a', projectId: 'p', start: combine('2026-09-01', '05:00'), end: combine('2026-09-01', '11:00'), pauses: [] },
+        { id: 'b', projectId: 'p', start: combine('2026-09-01', '15:00'), end: combine('2026-09-01', '19:00'), pauses: [] },
+      ],
+    });
+    const d = daySummary(project, '2026-09-01', buildIndex(st, 'p'), combine('2026-09-02', '10:00'));
+    // 10 h Arbeit, 4 h Unterbrechung → keine zusätzliche Pause abziehen
+    expect(d.autoBreak).toBe(0);
+    expect(d.pause).toBe(0);
+    expect(d.interruption).toBe(240);
+    expect(d.worked).toBe(600);
   });
 });
 

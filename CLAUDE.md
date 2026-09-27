@@ -26,13 +26,16 @@ Offline-fähige PWA zur Arbeitszeiterfassung (React + TypeScript + Vite). UI-Spr
 ## Demo
 
 `npm run build:demo -- <ziel.html>` erzeugt eine einzelne HTML-Datei mit Beispieldaten
-(`src/lib/demo.ts`). In der Demo gibt es keine Downloads, Dialoge oder Service Worker.
+(`src/lib/demo.ts`). In der Demo gibt es keine Downloads oder Service Worker.
+Umfangreichere Testdaten (z. B. ein ganzes Jahr) nur lokal zum Testen verwenden – nicht ins
+Repository und nicht in den Changelog.
 
 ## Versionen / „Was ist neu?“
 
-Bei jeder für Nutzer sichtbaren Änderung in `src/lib/changelog.json` oben einen Eintrag ergänzen
-(neue Versionsnummer, Datum, Änderungen in einfachen Worten) und `version` in `package.json` angleichen.
-Während der Entwicklung bleibt die Version bei 0.x (neue Funktionen: 0.x → 0.x+1, Korrekturen: 0.x.y → 0.x.y+1);
+**Neue Versionsnummer erst direkt vor dem Erstellen eines PR** – nicht bei jeder einzelnen Änderung.
+Dann in `src/lib/changelog.json` oben einen Eintrag ergänzen (neue Versionsnummer, Datum, alle für
+Nutzer sichtbaren Änderungen des PR in einfachen Worten) und `version` in `package.json` angleichen.
+Die Version bleibt bei 0.x (neue Funktionen: 0.x → 0.x+1, Korrekturen: 0.x.y → 0.x.y+1);
 1.0.0 erst nach Absprache mit dem Nutzer zum offiziellen Start.
 Nach einem Update zeigt die App diese Einträge einmalig beim Start (abschaltbar).
 Sobald die Version auf `main` ankommt, legt `.github/workflows/release.yml` Tag `vX.Y.Z` und
