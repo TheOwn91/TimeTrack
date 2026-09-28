@@ -61,8 +61,11 @@ export function buildMonthReport(state: AppState, project: Project, year: number
     const remarks: string[] = [];
     if (d.holiday) remarks.push(d.holiday);
     if (d.absence) remarks.push(ABSENCE_TYPES[d.absence.type].label + (d.absence.note ? `: ${d.absence.note}` : ''));
-    for (const b of d.autoBreaks)
-      remarks.push(`autom. Pause ${fmtTime(b.start)}–${fmtTime(b.start + b.minutes * 60_000)}`);
+    const autoPauses = [
+      ...d.sessions.flatMap((s) => s.pauses.filter((p) => p.auto && p.end !== undefined).map((p) => [p.start, p.end!] as const)),
+      ...d.autoBreaks.map((b) => [b.start, b.start + b.minutes * 60_000] as const),
+    ];
+    for (const [a, b] of autoPauses) remarks.push(`autom. Pause ${fmtTime(a)}–${fmtTime(b)}`);
     if (d.interruption > 0) remarks.push(`Unterbrechung ${fmtDuration(d.interruption)} h`);
     for (const s of d.sessions) if (s.note) remarks.push(s.note);
     const surcharges = activeRules

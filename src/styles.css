@@ -1299,3 +1299,10 @@ html {
 .auto-break-option p {
   margin: 0;
 }
+
+/* Hinweis unter automatisch eingetragenen Pausen im Tages-Editor */
+.auto-note {
+  margin: -0.2rem 0 0.2rem 0.75rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
