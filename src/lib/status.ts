@@ -83,7 +83,7 @@ export function runningNotice(state: AppState): { title: string; body: string; s
   if (!s) return null;
   const project = state.projects.find((p) => p.id === s.projectId);
   const pause = s.pauses.find((p) => p.end === undefined);
-  const name = project?.name ?? 'TimeTrack';
+  const name = project?.name ?? 'Timelytix';
   return pause
     ? { title: `⏸ Pause – ${name}`, body: `Pause seit ${fmtTime(pause.start)} · Arbeitsbeginn ${fmtTime(s.start)}`, start: pause.start }
     : { title: `⏱ Zeit läuft – ${name}`, body: `Seit ${fmtTime(s.start)} · Tippen zum Öffnen`, start: s.start };
@@ -124,7 +124,7 @@ export async function syncRunningStatus(state: AppState, force = false) {
 /** Probe-Benachrichtigung aus den Einstellungen. */
 export async function showTestNotification() {
   const reg = await registration();
-  await reg?.showNotification('TimeTrack', {
+  await reg?.showNotification('Timelytix', {
     body: 'So sieht die Anzeige aus, solange die Zeit läuft.',
     tag: 'timetrack-test',
     icon: './icon-192.png',

@@ -11,10 +11,10 @@ import { useStore } from '../lib/store';
 
 const HINTS = {
   ok: 'Erlaubt. Solange die Zeit läuft, siehst du das Symbol in der Statusleiste.',
-  ask: 'Beim ersten Start fragt das Handy, ob TimeTrack Benachrichtigungen zeigen darf.',
+  ask: 'Beim ersten Start fragt das Handy, ob Timelytix Benachrichtigungen zeigen darf.',
   denied:
-    'Benachrichtigungen sind blockiert. Erlaube sie in den Handy-Einstellungen unter Apps → TimeTrack (bzw. im Browser unter Website-Einstellungen).',
-  install: 'Auf dem iPhone gibt es Benachrichtigungen erst, wenn TimeTrack auf dem Home-Bildschirm installiert ist (ab iOS 16.4).',
+    'Benachrichtigungen sind blockiert. Erlaube sie in den Handy-Einstellungen unter Apps → Timelytix (bzw. im Browser unter Website-Einstellungen).',
+  install: 'Auf dem iPhone gibt es Benachrichtigungen erst, wenn Timelytix auf dem Home-Bildschirm installiert ist (ab iOS 16.4).',
   unsupported: 'Hier nicht verfügbar – in der installierten App auf dem Handy funktioniert es.',
 } as const;
 

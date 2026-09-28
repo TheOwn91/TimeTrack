@@ -1,4 +1,4 @@
-# TimeTrack – Arbeitszeiterfassung
+# Timelytix – Arbeitszeiterfassung
 
 App zur Erfassung von Arbeitszeiten, die **lokal auf dem Handy** läuft (Android und iPhone). Sie wird einmal im Browser geöffnet und auf dem Homescreen installiert – danach startet sie wie eine normale App und funktioniert **komplett offline**. Alle Daten bleiben auf dem Gerät; über „Einstellungen → Datensicherung“ lassen sie sich als Datei sichern, wiederherstellen oder komplett löschen. Unter „Einstellungen → Anzeige“ lassen sich Monats- und Jahressummen dezimal anzeigen (156,73 h statt 156:44 h).
 

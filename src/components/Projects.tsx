@@ -265,7 +265,7 @@ export function Projects({ onShowWhatsNew, onNewEmployer }: { onShowWhatsNew: ()
 
   const exportBackup = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-    void shareOrDownload(blob, `timetrack-backup-${dateKey(new Date())}.json`);
+    void shareOrDownload(blob, `timelytix-backup-${dateKey(new Date())}.json`);
   };
 
   const importBackup = async (file: File) => {

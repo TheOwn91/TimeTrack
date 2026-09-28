@@ -25,7 +25,7 @@ for (const [i, r] of [...releases].reverse().entries()) {
     continue;
   }
   const notes = `**${r.date}**\n\n${r.changes.map((c) => `- ${c}`).join('\n')}`;
-  const args = ['release', 'create', tag, '--target', target, '--title', `TimeTrack ${r.version}`, '--notes', notes];
+  const args = ['release', 'create', tag, '--target', target, '--title', `Timelytix ${r.version}`, '--notes', notes];
   if (r.version.startsWith('0.')) args.push('--prerelease');
   if (!isNewest) args.push('--latest=false');
   gh(...args);

@@ -50,7 +50,7 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
     return (
       <div className="page">
         <div className="card onboarding">
-          <h2>Willkommen bei TimeTrack 👋</h2>
+          <h2>Willkommen bei Timelytix 👋</h2>
           <p>Lege zuerst deinen Arbeitgeber an – der Assistent führt dich in wenigen Schritten durch.</p>
           <button className="btn primary full" onClick={onStartSetup}>
             Einrichtung starten
@@ -82,7 +82,7 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
     // Beim ersten Start fragen, ob die App eine „Zeit läuft“-Benachrichtigung zeigen darf –
     // erst in der App, die Abfrage des Browsers kommt nur nach „Erlauben“
     if (notifyEnabled() && notifySupport() === 'ask') {
-      void ask('Soll TimeTrack in der Statusleiste anzeigen, dass die Zeit läuft?', {
+      void ask('Soll Timelytix in der Statusleiste anzeigen, dass die Zeit läuft?', {
         detail: 'Nach „Erlauben“ fragt dein Handy einmal nach der Erlaubnis. Ändern kannst du das jederzeit unter Einstellungen → Statusleiste.',
         confirmLabel: 'Erlauben',
         cancelLabel: 'Nicht jetzt',
@@ -118,7 +118,7 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
       {!hideInstall && (
         <div className="install-hint">
           <button className="grow" onClick={onOpenProjects}>
-            📲 TimeTrack als App auf dem Homescreen installieren – funktioniert dann offline
+            📲 Timelytix als App auf dem Homescreen installieren – funktioniert dann offline
           </button>
           <button className="icon-btn" onClick={dismissInstall} aria-label="Hinweis ausblenden">
             ✕
