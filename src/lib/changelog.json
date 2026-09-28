@@ -1,5 +1,16 @@
 [
   {
+    "version": "0.13.0",
+    "date": "28.09.2026",
+    "changes": [
+      "Die App heißt jetzt „Timelytix“ – deine Daten und Einstellungen bleiben erhalten",
+      "Gesetzliche Pause: Sind 6 Stunden gearbeitet, beginnt die Pause automatisch, danach läuft die Arbeitszeit weiter – auch im laufenden Timer",
+      "Die Länge dieser Pause ist in den Einstellungen des Arbeitgebers einstellbar (Standard 30 Minuten)",
+      "Nach 9 Stunden folgt bei Bedarf eine eigene zweite Pause, bis insgesamt 45 Minuten erreicht sind",
+      "Tages-Editor und PDF zeigen die Zeiten der automatischen Pausen; Zulagen zählen in dieser Zeit nicht"
+    ]
+  },
+  {
     "version": "0.12.3",
     "date": "27.09.2026",
     "changes": [
