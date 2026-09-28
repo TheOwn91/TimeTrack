@@ -44,7 +44,7 @@ export function VersionCard({ onShowWhatsNew }: { onShowWhatsNew: () => void }) 
     <section className="card">
       <h2>App-Version &amp; Updates</h2>
       <p className="muted small">
-        TimeTrack {APP_VERSION}
+        Timelytix {APP_VERSION}
         {IN_DEVELOPMENT && ' · in Entwicklung'}
       </p>
 

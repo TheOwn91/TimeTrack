@@ -34,17 +34,76 @@ export function sessionStats(s: Session, now: number) {
   return { gross, net, pause: gross - net };
 }
 
+/** Standardlänge der automatischen Pause nach 6 h Arbeit (Minuten). */
+export const DEFAULT_AUTO_BREAK_MINUTES = 30;
+
+/** Automatische Pause als Zeitfenster; `end` ist das geplante Ende (kann bei laufender Zeit in der Zukunft liegen). */
+export interface AutoBreak {
+  start: number;
+  end: number;
+  /** Tatsächlich abgezogene Minuten (endet die Arbeit früher, entsprechend weniger). */
+  minutes: number;
+}
+
+function mergeIntervals(list: Interval[]): Interval[] {
+  const sorted = [...list].filter(([a, b]) => b > a).sort((x, y) => x[0] - y[0]);
+  const out: Interval[] = [];
+  for (const [a, b] of sorted) {
+    const last = out[out.length - 1];
+    if (last && a <= last[1]) last[1] = Math.max(last[1], b);
+    else out.push([a, b]);
+  }
+  return out;
+}
+
+function subtractWindow(list: Interval[], [ws, we]: Interval): Interval[] {
+  return list.flatMap(([a, b]): Interval[] => {
+    if (b <= ws || a >= we) return [[a, b]];
+    const parts: Interval[] = [];
+    if (a < ws) parts.push([a, ws]);
+    if (b > we) parts.push([we, b]);
+    return parts;
+  });
+}
+
+/** Zeitpunkt, an dem `minutes` Arbeitszeit erreicht sind – nur wenn danach noch gearbeitet wird. */
+function timeAtWorked(list: Interval[], minutes: number): number | undefined {
+  let left = minutes * MINUTE;
+  for (const [a, b] of list) {
+    if (b - a > left) return a + left;
+    left -= b - a;
+  }
+  return undefined;
+}
+
 /**
- * Gesetzliche Mindestpause nach §4 ArbZG: > 6 h → 30 min, > 9 h → 45 min.
- * Es wird nur so viel abgezogen, dass die Arbeitszeit nicht unter die jeweilige Grenze fällt.
+ * Gesetzliche Mindestpause (§ 4 ArbZG) an der richtigen Stelle einplanen: Sind 6 h gearbeitet,
+ * beginnt eine Pause von `firstMinutes` (Standard 30), danach läuft die Arbeitszeit weiter.
+ * Sind 9 h gearbeitet und insgesamt noch keine 45 min Pause, folgt eine weitere Pause mit dem Rest.
+ * Vorher genommene Pausen und Lücken zwischen Buchungen zählen mit.
  */
-export function autoBreakDeduction(net: number, pause: number): number {
-  let deduct = 0;
-  if (net > 360) deduct += Math.max(0, Math.min(30 - pause, net - 360));
-  const net1 = net - deduct;
-  const pause1 = pause + deduct;
-  if (net1 > 540) deduct += Math.max(0, Math.min(45 - pause1, net1 - 540));
-  return deduct;
+export function placeAutoBreaks(work: Interval[], firstMinutes = DEFAULT_AUTO_BREAK_MINUTES): { intervals: Interval[]; breaks: AutoBreak[] } {
+  let intervals = mergeIntervals(work);
+  const breaks: AutoBreak[] = [];
+  if (!intervals.length) return { intervals, breaks };
+  const dayStart = intervals[0][0];
+  const rules = [
+    { after: 360, total: firstMinutes },
+    { after: 540, total: Math.max(45, firstMinutes) },
+  ];
+  for (const rule of rules) {
+    const at = timeAtWorked(intervals, rule.after);
+    if (at === undefined) continue;
+    const taken = (at - dayStart) / MINUTE - rule.after;
+    const needed = Math.round(rule.total - taken);
+    if (needed <= 0) continue;
+    const window: Interval = [at, at + needed * MINUTE];
+    const before = intervals.reduce((n, [a, b]) => n + (b - a), 0);
+    intervals = subtractWindow(intervals, window);
+    const after = intervals.reduce((n, [a, b]) => n + (b - a), 0);
+    breaks.push({ start: window[0], end: window[1], minutes: (before - after) / MINUTE });
+  }
+  return { intervals, breaks };
 }
 
 function ruleMatches(rule: SurchargeRule, ts: number, state: string): boolean {
@@ -115,8 +174,10 @@ export interface DaySummary {
   pause: number;
   /** Längere Lücken zwischen Buchungen (z. B. geteilter Dienst) – keine Pause. */
   interruption: number;
-  /** Zusätzlich automatisch abgezogene Pause. */
+  /** Zusätzlich automatisch abgezogene Pause (Minuten). */
   autoBreak: number;
+  /** Automatische Pausen als Zeitfenster (nach 6 h bzw. 9 h Arbeit). */
+  autoBreaks: AutoBreak[];
   /** Netto-Arbeitszeit in Minuten. */
   worked: number;
   /** Gutgeschriebene Minuten (Urlaub, Krank …). */
@@ -174,13 +235,8 @@ export function daySummary(base: Project, date: DateKey, index: Index, now: numb
   const weekday = new Date(`${date}T12:00:00`).getDay();
   const isWorkday = project.workdays.includes(weekday as never);
 
-  let worked = 0;
-  const intervals: Interval[] = [];
-  for (const s of sessions) {
-    const st = sessionStats(s, now);
-    worked += st.net;
-    intervals.push(...workIntervals(s, now));
-  }
+  let intervals: Interval[] = [];
+  for (const s of sessions) intervals.push(...workIntervals(s, now));
   const firstStart = sessions[0]?.start;
   const lastEnd = sessions.length
     ? Math.max(...sessions.map((s) => s.end ?? now))
@@ -202,9 +258,16 @@ export function daySummary(base: Project, date: DateKey, index: Index, now: numb
     cursor = Math.max(cursor ?? s.start, s.end ?? now);
   }
   const pause = recordedPause + shortGaps;
-  // Gesetzliche Mindestpause: jede Unterbrechung ab 15 min zählt als Ruhepause (§ 4 ArbZG), auch lange
-  const autoBreak = project.autoBreak && !running ? autoBreakDeduction(worked, pause + interruption) : 0;
-  worked -= autoBreak;
+  // Gesetzliche Mindestpause nach 6 h an der richtigen Stelle (auch während die Zeit läuft).
+  // Jede Unterbrechung zählt dabei als Ruhepause (§ 4 ArbZG), auch lange.
+  let autoBreaks: AutoBreak[] = [];
+  if (project.autoBreak) {
+    const placed = placeAutoBreaks(intervals, project.autoBreakMinutes ?? DEFAULT_AUTO_BREAK_MINUTES);
+    intervals = placed.intervals;
+    autoBreaks = placed.breaks.filter((b) => b.minutes > 0);
+  }
+  const autoBreak = autoBreaks.reduce((n, b) => n + b.minutes, 0);
+  const worked = sumMinutes(intervals);
 
   let target = isWorkday && !holiday ? project.dailyTargetHours * 60 : 0;
   let credit = 0;
@@ -257,6 +320,7 @@ export function daySummary(base: Project, date: DateKey, index: Index, now: numb
     pause: Math.max(0, pause) + autoBreak,
     interruption,
     autoBreak,
+    autoBreaks,
     worked: workedFinal,
     credit,
     target,

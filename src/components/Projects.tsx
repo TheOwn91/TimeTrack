@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { DEFAULT_AUTO_BREAK_MINUTES } from '../lib/calc';
 import { ask } from '../lib/confirm';
 import { notify } from '../lib/demo';
 import { shareOrDownload } from '../lib/device';
@@ -113,10 +114,38 @@ function ProjectForm({ project }: { project: Project }) {
           />
         </label>
       </div>
-      <label className="checkbox">
-        <input type="checkbox" checked={project.autoBreak} onChange={(e) => set((p) => (p.autoBreak = e.target.checked))} />
-        Gesetzliche Mindestpause automatisch abziehen (&gt; 6 h: 30 min, &gt; 9 h: 45 min)
-      </label>
+      <div className="auto-break-option">
+        <label className="checkbox toggle-row">
+          <input
+            id="auto-break"
+            type="checkbox"
+            checked={project.autoBreak}
+            onChange={(e) => set((p) => (p.autoBreak = e.target.checked))}
+          />
+          Gesetzliche Pause automatisch nach 6 h Arbeit
+        </label>
+        {project.autoBreak && (
+          <>
+            <div className="field-list">
+              <label>
+                <span>Länge der Pause</span>
+                <NumberField
+                  id="auto-break-minutes"
+                  value={project.autoBreakMinutes ?? DEFAULT_AUTO_BREAK_MINUTES}
+                  min={15}
+                  max={120}
+                  onChange={(v) => set((p) => (p.autoBreakMinutes = v))}
+                />
+                <span className="unit">min</span>
+              </label>
+            </div>
+            <p className="muted small">
+              Sind 6 h gearbeitet, beginnt die Pause, danach läuft die Arbeitszeit weiter. Nach 9 h folgt bei Bedarf eine
+              weitere Pause, bis insgesamt 45 min erreicht sind. Selbst erfasste Pausen zählen mit.
+            </p>
+          </>
+        )}
+      </div>
       <div className="shift-option">
         <label className="checkbox toggle-row">
           <input
@@ -236,7 +265,7 @@ export function Projects({ onShowWhatsNew, onNewEmployer }: { onShowWhatsNew: ()
 
   const exportBackup = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-    void shareOrDownload(blob, `timetrack-backup-${dateKey(new Date())}.json`);
+    void shareOrDownload(blob, `timelytix-backup-${dateKey(new Date())}.json`);
   };
 
   const importBackup = async (file: File) => {

@@ -86,7 +86,7 @@ export function InstallCard() {
     return (
       <section className="card">
         <h2>App</h2>
-        <p className="muted small">✔ TimeTrack ist installiert und funktioniert auch ohne Internet.</p>
+        <p className="muted small">✔ Timelytix ist installiert und funktioniert auch ohne Internet.</p>
       </section>
     );
   }
@@ -95,7 +95,7 @@ export function InstallCard() {
     <section className="card">
       <h2>Als App installieren</h2>
       <p className="muted small">
-        Installiert startet TimeTrack wie eine normale App vom Homescreen und funktioniert komplett offline.
+        Installiert startet Timelytix wie eine normale App vom Homescreen und funktioniert komplett offline.
       </p>
       <InstallHelp />
     </section>

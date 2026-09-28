@@ -72,7 +72,7 @@ export function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>TimeTrack</h1>
+        <h1>Timelytix</h1>
         {DEMO && (
           <div className="demo-bar">
             <span>

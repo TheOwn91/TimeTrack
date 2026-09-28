@@ -50,7 +50,7 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
     return (
       <div className="page">
         <div className="card onboarding">
-          <h2>Willkommen bei TimeTrack 👋</h2>
+          <h2>Willkommen bei Timelytix 👋</h2>
           <p>Lege zuerst deinen Arbeitgeber an – der Assistent führt dich in wenigen Schritten durch.</p>
           <button className="btn primary full" onClick={onStartSetup}>
             Einrichtung starten
@@ -61,9 +61,15 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
   }
 
   const openPause = active?.pauses.find((p) => p.end === undefined);
-  const stats = active ? sessionStats(active, now) : undefined;
   // Tag, zu dem die laufende Schicht zählt (bei „Schicht dem Folgetag zuordnen“ ggf. morgen)
   const today = daySummary(project, active ? sessionDay(project, active) : dateKey(now), buildIndex(state, project.id), now);
+  // Automatische Pause nach 6 h: läuft gerade, und wie viel davon fällt in die laufende Buchung
+  const autoPause = !openPause ? today.autoBreaks.find((b) => now >= b.start && now < b.end) : undefined;
+  const autoInActive = active
+    ? today.autoBreaks.reduce((n, b) => n + Math.min(b.minutes, Math.max(0, (Math.min(b.end, now) - Math.max(b.start, active.start)) / 60_000)), 0)
+    : 0;
+  const raw = active ? sessionStats(active, now) : undefined;
+  const stats = raw && { net: raw.net - autoInActive, pause: raw.pause + autoInActive };
   const d = new Date(now);
   const month = monthSummary(state, project, d.getFullYear(), d.getMonth(), now);
   const missing = untrackedDays(state, project, now);
@@ -76,7 +82,7 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
     // Beim ersten Start fragen, ob die App eine „Zeit läuft“-Benachrichtigung zeigen darf –
     // erst in der App, die Abfrage des Browsers kommt nur nach „Erlauben“
     if (notifyEnabled() && notifySupport() === 'ask') {
-      void ask('Soll TimeTrack in der Statusleiste anzeigen, dass die Zeit läuft?', {
+      void ask('Soll Timelytix in der Statusleiste anzeigen, dass die Zeit läuft?', {
         detail: 'Nach „Erlauben“ fragt dein Handy einmal nach der Erlaubnis. Ändern kannst du das jederzeit unter Einstellungen → Statusleiste.',
         confirmLabel: 'Erlauben',
         cancelLabel: 'Nicht jetzt',
@@ -112,7 +118,7 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
       {!hideInstall && (
         <div className="install-hint">
           <button className="grow" onClick={onOpenProjects}>
-            📲 TimeTrack als App auf dem Homescreen installieren – funktioniert dann offline
+            📲 Timelytix als App auf dem Homescreen installieren – funktioniert dann offline
           </button>
           <button className="icon-btn" onClick={dismissInstall} aria-label="Hinweis ausblenden">
             ✕
@@ -134,11 +140,15 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
         {active && <p className="muted small center">Während die Zeit läuft, kann die Arbeit nicht gewechselt werden.</p>}
       </section>
 
-      <section className={`card timer ${active ? (openPause ? 'paused' : 'running') : ''}`}>
+      <section className={`card timer ${active ? (openPause || autoPause ? 'paused' : 'running') : ''}`}>
         {active && stats ? (
           <>
             <div className="timer-status">
-              {openPause ? `⏸ Pause seit ${fmtTime(openPause.start)}` : `● Läuft seit ${fmtTime(active.start)}`}
+              {openPause
+                ? `⏸ Pause seit ${fmtTime(openPause.start)}`
+                : autoPause
+                  ? `⏸ Pause (automatisch) bis ${fmtTime(autoPause.end)}`
+                  : `● Läuft seit ${fmtTime(active.start)}`}
             </div>
             <div className="clock">{fmtClock(stats.net * 60_000)}</div>
             <div className="muted center">

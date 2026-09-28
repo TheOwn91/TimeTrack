@@ -1,4 +1,4 @@
-# TimeTrack – Hinweise für Claude
+# Timelytix – Hinweise für Claude
 
 Offline-fähige PWA zur Arbeitszeiterfassung (React + TypeScript + Vite). UI-Sprache: Deutsch.
 

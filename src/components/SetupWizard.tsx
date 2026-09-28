@@ -64,7 +64,7 @@ export function SetupWizard({ firstRun, initialName = '', onClose }: Props) {
   const canNext = step !== 'employer' || p.name.trim().length > 0;
 
   return (
-    <Modal title={firstRun && i === 0 ? 'Willkommen bei TimeTrack 👋' : titles[step]} onClose={cancel}>
+    <Modal title={firstRun && i === 0 ? 'Willkommen bei Timelytix 👋' : titles[step]} onClose={cancel}>
       <div className="wizard-progress" aria-label={`Schritt ${i + 1} von ${steps.length}`}>
         {steps.map((s, n) => (
           <span key={s} className={n <= i ? 'done' : ''} />
@@ -125,7 +125,7 @@ export function SetupWizard({ firstRun, initialName = '', onClose }: Props) {
           </div>
           <label className="checkbox toggle-row">
             <input id="wizard-break" type="checkbox" checked={p.autoBreak} onChange={(e) => set({ autoBreak: e.target.checked })} />
-            Gesetzliche Mindestpause automatisch abziehen (über 6 h: 30 min, über 9 h: 45 min)
+            Gesetzliche Pause automatisch nach 6 h Arbeit (30 min, nach 9 h insgesamt 45 min – später einstellbar)
           </label>
         </div>
       )}
@@ -231,7 +231,7 @@ export function SetupWizard({ firstRun, initialName = '', onClose }: Props) {
             <section className="wizard-section">
               <p className="wizard-subhead">Auf dem Homescreen installieren</p>
               <p className="muted small">
-                Dann startet TimeTrack wie eine normale App und funktioniert ohne Internet.
+                Dann startet Timelytix wie eine normale App und funktioniert ohne Internet.
               </p>
               <InstallHelp />
             </section>
@@ -241,7 +241,7 @@ export function SetupWizard({ firstRun, initialName = '', onClose }: Props) {
               <p className="wizard-subhead">Symbol in der Statusleiste</p>
               {notify === 'ask' ? (
                 <>
-                  <p className="muted small">Solange die Zeit läuft, zeigt TimeTrack eine Benachrichtigung an.</p>
+                  <p className="muted small">Solange die Zeit läuft, zeigt Timelytix eine Benachrichtigung an.</p>
                   <button
                     className="btn secondary full"
                     onClick={async () => {
@@ -254,7 +254,7 @@ export function SetupWizard({ firstRun, initialName = '', onClose }: Props) {
                   </button>
                 </>
               ) : (
-                <p className="muted small">Auf dem iPhone geht das, sobald TimeTrack auf dem Home-Bildschirm installiert ist.</p>
+                <p className="muted small">Auf dem iPhone geht das, sobald Timelytix auf dem Home-Bildschirm installiert ist.</p>
               )}
             </section>
           )}

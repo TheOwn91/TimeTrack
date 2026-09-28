@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { autoBreakDeduction, buildIndex, daySummary, monthSummary, sessionStats, surchargeMinutes, untrackedDays, workIntervals } from './calc';
+import { buildIndex, daySummary, monthSummary, placeAutoBreaks, sessionStats, surchargeMinutes, untrackedDays, workIntervals } from './calc';
 import { easterSunday, holidayName } from './holidays';
 import { combine } from './time';
 import type { AppState, Project, SurchargeRule } from './types';
@@ -43,13 +43,52 @@ describe('Arbeitszeit und Pausen', () => {
     expect(sessionStats(s, 0)).toEqual({ gross: 510, net: 480, pause: 30 });
   });
 
-  it('berechnet die gesetzliche Mindestpause', () => {
-    expect(autoBreakDeduction(300, 0)).toBe(0);
-    expect(autoBreakDeduction(370, 0)).toBe(10);
-    expect(autoBreakDeduction(480, 0)).toBe(30);
-    expect(autoBreakDeduction(480, 30)).toBe(0);
-    expect(autoBreakDeduction(600, 0)).toBe(45);
-    expect(autoBreakDeduction(600, 30)).toBe(15);
+  describe('gesetzliche Pause nach 6 h an der richtigen Stelle', () => {
+    const d = '2026-09-01';
+    const run = (from: string, to: string, first?: number, pauses: [string, string][] = []) => {
+      const s = { id: 's', projectId: 'p', start: combine(d, from), end: combine(d, to), pauses: pauses.map(([a, b]) => ({ start: combine(d, a), end: combine(d, b) })) };
+      const r = placeAutoBreaks(workIntervals(s, 0), first);
+      return {
+        breaks: r.breaks.map((x) => `${hm2(x.start)}–${hm2(x.end)} (${x.minutes})`),
+        worked: r.intervals.reduce((n, [a, b]) => n + (b - a), 0) / 60_000,
+      };
+    };
+    const hm2 = (ts: number) => new Date(ts).toTimeString().slice(0, 5);
+
+    it('bis 6 h keine Pause', () => expect(run('08:00', '14:00')).toEqual({ breaks: [], worked: 360 }));
+    it('nach 6 h beginnt die Pause, danach läuft die Zeit weiter', () =>
+      expect(run('08:00', '16:30')).toEqual({ breaks: ['14:00–14:30 (30)'], worked: 480 }));
+    it('endet die Arbeit in der Pause, zählt nur der Teil bis zum Ende', () =>
+      expect(run('08:00', '14:10')).toEqual({ breaks: ['14:00–14:30 (10)'], worked: 360 }));
+    it('Länge der Pause einstellbar', () => expect(run('08:00', '17:00', 45)).toEqual({ breaks: ['14:00–14:45 (45)'], worked: 495 }));
+    it('nach 9 h eine weitere Pause bis insgesamt 45 min', () =>
+      expect(run('08:00', '18:00')).toEqual({ breaks: ['14:00–14:30 (30)', '17:30–17:45 (15)'], worked: 555 }));
+    it('schon genommene Pause zählt mit', () => {
+      // 30 min Pause mittags → nach 6 h keine, nach 9 h nur noch 15 min
+      expect(run('08:00', '18:30', undefined, [['12:00', '12:30']])).toEqual({ breaks: ['17:30–17:45 (15)'], worked: 585 });
+      // nur 15 min genommen → nach 6 h die fehlenden 15 min
+      expect(run('08:00', '16:00', undefined, [['12:00', '12:15']])).toEqual({ breaks: ['14:15–14:30 (15)'], worked: 450 });
+    });
+  });
+
+  it('laufende Zeit: nach 6 h ist gerade Pause', () => {
+    const st = state({ sessions: [{ id: 'a', projectId: 'p', start: combine('2026-09-01', '06:00'), pauses: [] }] });
+    const now = combine('2026-09-01', '12:10');
+    const day = daySummary(project, '2026-09-01', buildIndex(st, 'p'), now);
+    expect(day.worked).toBe(360);
+    expect(day.autoBreaks).toHaveLength(1);
+    expect(day.autoBreaks[0].end).toBe(combine('2026-09-01', '12:30'));
+    const later = daySummary(project, '2026-09-01', buildIndex(st, 'p'), combine('2026-09-01', '13:00'));
+    expect(later.worked).toBe(390); // 6 h + 30 min nach der Pause
+  });
+
+  it('Nachtzulage zählt in der automatischen Pause nicht', () => {
+    const st = state({ sessions: [{ id: 'a', projectId: 'p', start: combine('2026-09-01', '20:00'), end: combine('2026-09-02', '04:30'), pauses: [] }] });
+    const day = daySummary(project, '2026-09-01', buildIndex(st, 'p'), combine('2026-09-03', '12:00'));
+    // Pause 02:00–02:30 liegt in der Nacht (22–06 Uhr)
+    expect(day.autoBreaks.map((b) => b.minutes)).toEqual([30]);
+    expect(day.surcharges.night).toBe(390 - 30); // 22:00–04:30 ohne die Pause
+    expect(day.worked).toBe(480);
   });
 
   it('zählt Lücken zwischen Buchungen als Pause', () => {
