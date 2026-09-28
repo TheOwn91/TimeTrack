@@ -261,7 +261,8 @@ export function daySummary(base: Project, date: DateKey, index: Index, now: numb
   // Gesetzliche Mindestpause nach 6 h an der richtigen Stelle (auch während die Zeit läuft).
   // Jede Unterbrechung zählt dabei als Ruhepause (§ 4 ArbZG), auch lange.
   let autoBreaks: AutoBreak[] = [];
-  if (project.autoBreak) {
+  // Nur für Tage, deren automatische Pausen noch nicht als echte Pausen eingetragen sind (z. B. laufende Zeit)
+  if (project.autoBreak && sessions.some((s) => !s.autoBreaksApplied)) {
     const placed = placeAutoBreaks(intervals, project.autoBreakMinutes ?? DEFAULT_AUTO_BREAK_MINUTES);
     intervals = placed.intervals;
     autoBreaks = placed.breaks.filter((b) => b.minutes > 0);

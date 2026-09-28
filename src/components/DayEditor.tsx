@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { ABSENCE_ORDER, ABSENCE_TYPES } from '../lib/absences';
 import { buildIndex, daySummary } from '../lib/calc';
 import { ask } from '../lib/confirm';
@@ -122,41 +123,44 @@ export function DayEditor({ project, date, onClose }: Props) {
               </label>
             </div>
             {s.pauses.map((p, pi) => (
-              <div key={pi} className="row times pause-row">
-                <label>
-                  Pause von
-                  <input
-                    type="time"
-                    value={fmtTime(p.start)}
-                    onChange={(e) =>
-                      e.target.value &&
-                      updateSession(s.id, (x) => (x.pauses[pi].start = toTs(dateKey(x.start), e.target.value, x.start)))
-                    }
-                  />
-                </label>
-                <label>
-                  bis
-                  {p.end === undefined ? (
-                    <span className="running-badge">läuft</span>
-                  ) : (
+              <Fragment key={pi}>
+                <div className="row times pause-row">
+                  <label>
+                    Pause von
                     <input
                       type="time"
-                      value={fmtTime(p.end)}
+                      value={fmtTime(p.start)}
                       onChange={(e) =>
                         e.target.value &&
-                        updateSession(s.id, (x) => (x.pauses[pi].end = toTs(dateKey(x.start), e.target.value, x.pauses[pi].start)))
+                        updateSession(s.id, (x) => (x.pauses[pi].start = toTs(dateKey(x.start), e.target.value, x.start)))
                       }
                     />
-                  )}
-                </label>
-                <button
-                  className="icon-btn"
-                  aria-label="Pause entfernen"
-                  onClick={() => updateSession(s.id, (x) => x.pauses.splice(pi, 1))}
-                >
-                  ✕
-                </button>
-              </div>
+                  </label>
+                  <label>
+                    bis
+                    {p.end === undefined ? (
+                      <span className="running-badge">läuft</span>
+                    ) : (
+                      <input
+                        type="time"
+                        value={fmtTime(p.end)}
+                        onChange={(e) =>
+                          e.target.value &&
+                          updateSession(s.id, (x) => (x.pauses[pi].end = toTs(dateKey(x.start), e.target.value, x.pauses[pi].start)))
+                        }
+                      />
+                    )}
+                  </label>
+                  <button
+                    className="icon-btn"
+                    aria-label="Pause entfernen"
+                    onClick={() => updateSession(s.id, (x) => x.pauses.splice(pi, 1))}
+                  >
+                    ✕
+                  </button>
+                </div>
+                {p.auto && <p className="auto-note">Gesetzliche Pause – automatisch eingetragen</p>}
+              </Fragment>
             ))}
             <div className="row">
               <button

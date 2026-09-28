@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { materializeAutoBreaks } from './autobreak';
 import { DEMO, demoState } from './demo';
 import { dateKey, fmtHours, uid } from './time';
 import type { AppState, Project, SurchargeRule } from './types';
@@ -39,13 +40,15 @@ export function emptyState(): AppState {
 }
 
 export function loadState(): AppState {
+  let state: AppState;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEMO ? demoState() : emptyState();
-    return validateState(JSON.parse(raw));
+    state = raw ? validateState(JSON.parse(raw)) : DEMO ? demoState() : emptyState();
   } catch {
-    return DEMO ? demoState() : emptyState();
+    state = DEMO ? demoState() : emptyState();
   }
+  materializeAutoBreaks(state);
+  return state;
 }
 
 export function validateState(data: unknown): AppState {
@@ -97,12 +100,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setState((prev) => {
       const draft = structuredClone(prev);
       fn(draft);
+      // Beendete Tage: gesetzliche Pausen als echte Pausen eintragen
+      materializeAutoBreaks(draft);
       return draft;
     });
   }, []);
 
+  const replace = useCallback((s: AppState) => {
+    const next = structuredClone(s);
+    materializeAutoBreaks(next);
+    setState(next);
+  }, []);
+
   return (
-    <StoreContext.Provider value={{ state, update, replace: setState }}>{children}</StoreContext.Provider>
+    <StoreContext.Provider value={{ state, update, replace }}>{children}</StoreContext.Provider>
   );
 }
 

@@ -79,6 +79,8 @@ export interface Terms {
 export interface Pause {
   start: number;
   end?: number;
+  /** Von der App eingetragene gesetzliche Pause (nach 6 h bzw. 9 h); kann wie jede Pause gelöscht werden. */
+  auto?: boolean;
 }
 
 export interface Session {
@@ -88,6 +90,8 @@ export interface Session {
   end?: number;
   pauses: Pause[];
   note?: string;
+  /** Automatische Pausen für diesen Tag sind eingetragen (siehe lib/autobreak.ts). */
+  autoBreaksApplied?: boolean;
 }
 
 export type AbsenceType =
