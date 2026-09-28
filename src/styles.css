@@ -1306,3 +1306,30 @@ html {
   color: var(--muted);
   font-size: 0.8rem;
 }
+
+/* Umzug auf die neue Adresse (nur unter …/TimeTrack/ in der installierten App) */
+.moved-notice {
+  margin: 0.25rem 1rem 0.75rem;
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--primary-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.moved-notice h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.moved-notice p {
+  margin: 0;
+}
+.moved-notice a.btn {
+  text-align: center;
+  text-decoration: none;
+}
+.moved-notice .btn.secondary {
+  background: var(--raised);
+  border: 1px solid var(--border);
+}
