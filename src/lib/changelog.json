@@ -1,5 +1,14 @@
 [
   {
+    "version": "0.13.1",
+    "date": "28.09.2026",
+    "changes": [
+      "Automatische Pausen stehen jetzt als eigene Einträge in der Buchung (gekennzeichnet als „automatisch eingetragen“) und lassen sich ändern oder löschen",
+      "Eine gelöschte automatische Pause kommt nicht wieder",
+      "Monatsansicht: Zulagen mit Prozentsatz und „Summe Zulagen“ in € wie auf der Startseite"
+    ]
+  },
+  {
     "version": "0.13.0",
     "date": "28.09.2026",
     "changes": [
