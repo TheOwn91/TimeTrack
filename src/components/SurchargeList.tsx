@@ -2,12 +2,11 @@ import type { MonthSummary } from '../lib/calc';
 import { useHours } from '../lib/store';
 import { fmtMoney } from '../lib/time';
 
-/** Zulagen eines Monats mit Stunden, Betrag und Summe (Startseite und Monatsansicht). */
+/** Zulagen eines Monats mit Stunden und Betrag, dazu die Summe in € (Startseite und Monatsansicht). */
 export function SurchargeList({ month, hideEmpty = false }: { month: MonthSummary; hideEmpty?: boolean }) {
   const hours = useHours();
   const rows = hideEmpty ? month.surcharges.filter((s) => s.minutes > 0) : month.surcharges;
   if (!rows.length) return null;
-  const totalMinutes = rows.reduce((n, s) => n + s.minutes, 0);
   return (
     <ul className="surcharge-list">
       {rows.map((s) => (
@@ -19,13 +18,13 @@ export function SurchargeList({ month, hideEmpty = false }: { month: MonthSummar
           {month.hasRate && <strong>{fmtMoney(s.amount)}</strong>}
         </li>
       ))}
-      {rows.length > 1 || month.hasRate ? (
+      {month.hasRate && (
         <li className="total">
           <span>Summe Zulagen</span>
-          <span>{hours(totalMinutes)} h</span>
-          {month.hasRate && <strong>{fmtMoney(month.surchargeTotal)}</strong>}
+          <span />
+          <strong>{fmtMoney(month.surchargeTotal)}</strong>
         </li>
-      ) : null}
+      )}
     </ul>
   );
 }
