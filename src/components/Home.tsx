@@ -7,12 +7,13 @@ import { ask } from '../lib/confirm';
 import { notifyEnabled, notifySupport, requestNotifyPermission, setNotifyEnabled, syncRunningStatus } from '../lib/status';
 import { buildIndex, daySummary, monthSummary, sessionStats, untrackedDays } from '../lib/calc';
 import { useHours, useNow, useStore } from '../lib/store';
-import { MONTHS, dateKey, fmtClock, fmtDate, fmtDuration, fmtMoney, fmtTime, uid } from '../lib/time';
+import { MONTHS, dateKey, fmtClock, fmtDate, fmtDuration, fmtTime, uid } from '../lib/time';
 import type { AbsenceType, DateKey } from '../lib/types';
 import { yearOverview } from '../lib/year';
 import { DayEditor } from './DayEditor';
 import { MonthExtras } from './MonthExtras';
 import { ProjectPicker } from './ProjectPicker';
+import { SurchargeList } from './SurchargeList';
 
 const INSTALL_HINT_KEY = 'timetrack.installHintDismissed';
 
@@ -206,24 +207,7 @@ export function Home({ onOpenProjects, onStartSetup }: { onOpenProjects: () => v
         {month.surcharges.length === 0 ? (
           <p className="muted small">Keine Zulagen konfiguriert.</p>
         ) : (
-          <ul className="surcharge-list">
-            {month.surcharges.map((s) => (
-              <li key={s.rule.id}>
-                <span>
-                  {s.rule.name} <span className="muted">({s.rule.percent} %)</span>
-                </span>
-                <span>{hours(s.minutes)} h</span>
-                {month.hasRate && <strong>{fmtMoney(s.amount)}</strong>}
-              </li>
-            ))}
-            {month.hasRate && (
-              <li className="total">
-                <span>Summe Zulagen</span>
-                <span />
-                <strong>{fmtMoney(month.surchargeTotal)}</strong>
-              </li>
-            )}
-          </ul>
+          <SurchargeList month={month} />
         )}
       </section>
 

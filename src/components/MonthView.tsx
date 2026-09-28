@@ -3,12 +3,13 @@ import { ABSENCE_TYPES } from '../lib/absences';
 import { monthSummary } from '../lib/calc';
 import { notify } from '../lib/demo';
 import { useHours, useNow, useStore } from '../lib/store';
-import { MONTHS, WEEKDAYS_SHORT, dateKey, fmtDuration, fmtMoney, fmtTime, parseDateKey } from '../lib/time';
+import { MONTHS, WEEKDAYS_SHORT, dateKey, fmtDuration, fmtTime, parseDateKey } from '../lib/time';
 import type { DateKey } from '../lib/types';
 import { yearOverview } from '../lib/year';
 import { DayEditor } from './DayEditor';
 import { MonthExtras } from './MonthExtras';
 import { ProjectPicker } from './ProjectPicker';
+import { SurchargeList } from './SurchargeList';
 
 export function MonthView() {
   const { state, update } = useStore();
@@ -90,17 +91,10 @@ export function MonthView() {
           ))}
         </div>
         {sum.surcharges.some((s) => s.minutes > 0) && (
-          <ul className="surcharge-list">
-            {sum.surcharges
-              .filter((s) => s.minutes > 0)
-              .map((s) => (
-                <li key={s.rule.id}>
-                  <span>{s.rule.name}</span>
-                  <span>{hours(s.minutes)} h</span>
-                  {sum.hasRate && <strong>{fmtMoney(s.amount)}</strong>}
-                </li>
-              ))}
-          </ul>
+          <>
+            <h3>Zulagen</h3>
+            <SurchargeList month={sum} hideEmpty />
+          </>
         )}
         <button className="btn primary full" onClick={async () => {
             if (import.meta.env.MODE === 'demo') {
