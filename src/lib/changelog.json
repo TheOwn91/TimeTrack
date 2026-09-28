@@ -1,5 +1,14 @@
 [
   {
+    "version": "0.13.2",
+    "date": "28.09.2026",
+    "changes": [
+      "Timelytix ist umgezogen: Die App gibt es jetzt unter https://theown91.github.io/Timelytix/",
+      "Bitte die neue Adresse öffnen und dort zum Home-Bildschirm hinzufügen – danach kann diese App gelöscht werden",
+      "Auf Android sind deine Daten dort schon vorhanden; sonst hier „Sicherung exportieren“ und dort importieren"
+    ]
+  },
+  {
     "version": "0.13.1",
     "date": "28.09.2026",
     "changes": [

@@ -7,6 +7,7 @@ import { WhatsNew } from './components/WhatsNew';
 import { YearView } from './components/YearView';
 import { CHANGELOG, markVersionSeen, pendingReleaseNotes, type Release } from './lib/changelog';
 import { ConfirmHost } from './components/ConfirmHost';
+import { MovedNotice } from './components/MovedNotice';
 import { UpdatePreview } from './components/UpdatePreview';
 import { DEMO, demoState } from './lib/demo';
 import { syncRunningStatus } from './lib/status';
@@ -85,6 +86,7 @@ export function App() {
           </div>
         )}
       </header>
+      <MovedNotice />
       {update.state === 'available' && (
         <div className="update-bar" role="status">
           <span>
