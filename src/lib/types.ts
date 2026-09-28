@@ -33,6 +33,8 @@ export interface Project {
   workdays: Weekday[];
   /** Gesetzliche Mindestpause (ArbZG §4) automatisch abziehen. */
   autoBreak: boolean;
+  /** Länge der automatischen Pause nach 6 h Arbeit in Minuten (Standard 30). */
+  autoBreakMinutes?: number;
   /** Bundesland-Kürzel für Feiertage, '' = keine Feiertage. */
   state: string;
   surcharges: SurchargeRule[];

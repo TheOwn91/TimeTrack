@@ -202,9 +202,13 @@ export function DayEditor({ project, date, onClose }: Props) {
               <strong>{fmtDuration(day.interruption)} h</strong>
             </div>
           )}
-          {day.autoBreak > 0 && (
+          {day.autoBreaks.length > 0 && (
             <p className="muted small">
-              Enthält {Math.round(day.autoBreak)} min automatisch abgezogene gesetzliche Pause.
+              Enthält automatische Pause{day.autoBreaks.length > 1 ? 'n' : ''}{' '}
+              {day.autoBreaks
+                .map((b) => `${fmtTime(b.start)}–${fmtTime(b.start + b.minutes * MINUTE)} (${Math.round(b.minutes)} min)`)
+                .join(' und ')}
+              .
             </p>
           )}
           {terms.surcharges

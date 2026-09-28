@@ -125,7 +125,7 @@ export function SetupWizard({ firstRun, initialName = '', onClose }: Props) {
           </div>
           <label className="checkbox toggle-row">
             <input id="wizard-break" type="checkbox" checked={p.autoBreak} onChange={(e) => set({ autoBreak: e.target.checked })} />
-            Gesetzliche Mindestpause automatisch abziehen (über 6 h: 30 min, über 9 h: 45 min)
+            Gesetzliche Pause automatisch nach 6 h Arbeit (30 min, nach 9 h insgesamt 45 min – später einstellbar)
           </label>
         </div>
       )}
